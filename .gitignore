@@ -1,0 +1,10 @@
+.env
+venv/
+venv-pathfinder/
+__pycache__/
+*.pyc
+.DS_Store
+._*
+chroma_db/
+pathfinder-ai.tar.gz
+node_modules/
