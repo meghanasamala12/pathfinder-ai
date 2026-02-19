@@ -950,21 +950,52 @@ async def get_related_jobs(
                 if i.interest:
                     skills_set.add(_normalize_skill(i.interest))
 
-        # Load all jobs and score by overlap
+        # Load coursework tags for better matching
+        coursework_tags: set = set()
+        if user:
+            r = await db.execute(select(PathfinderUserCoursework).where(PathfinderUserCoursework.user_id == user.id))
+            courses = r.scalars().all()
+            for c in courses:
+                for tag in (c.tags or []):
+                    if tag:
+                        coursework_tags.add(_normalize_skill(str(tag)))
+
+        # Combine all user signals
+        all_user_skills = skills_set | coursework_tags
+
+        # Interest labels for title matching
+        interest_labels = [_normalize_skill(i.interest) for i in interests] if user else []
+
+        # Load all jobs and score by overlap + interest boost
         r = await db.execute(select(PathfinderJob).limit(200))
         jobs = r.scalars().all()
         scored = []
         for j in jobs:
-            job_skills = re.split(r"[,/;\s]+", (j.required_skills or "") + " " + (j.title or ""))
+            job_text = (j.required_skills or "") + " " + (j.title or "") + " " + (j.description or "")
+            job_skills = re.split(r"[,/;\s]+", job_text)
             job_norm = {_normalize_skill(x) for x in job_skills if x}
-            overlap = len(skills_set & job_norm) if skills_set else 0
-            scored.append((overlap, j))
+            job_title_norm = _normalize_skill(j.title or "")
+
+            # Skill overlap score
+            overlap = len(all_user_skills & job_norm) if all_user_skills else 0
+
+            # Interest boost: heavily prioritize jobs matching career interests
+            interest_boost = 0
+            for interest in interest_labels:
+                if interest and (interest in job_title_norm or job_title_norm in interest):
+                    interest_boost += 10
+                # Partial word match (e.g. "engineer" in "data engineer")
+                for word in interest.split():
+                    if word and len(word) > 3 and word in job_title_norm:
+                        interest_boost += 3
+
+            scored.append((overlap + interest_boost, j))
 
         scored.sort(key=lambda x: (-x[0], x[1].title))
         result = []
-        for overlap, j in scored[:limit]:
-            # Match score: base 60 + up to 40 from skill overlap (5+ matches = 100%)
-            match_score = min(100, 60 + overlap * 8)
+        for total_score, j in scored[:limit]:
+            # Match score: base 50 + up to 50 from combined score
+            match_score = min(100, 50 + total_score * 5)
             result.append({
                 "id": j.id,
                 "title": j.title,
