@@ -385,6 +385,79 @@ Use only the keys above. Be specific and actionable. suitable_roles must be an a
             "areas_to_improve": [],
         }
 
+    async def generate_dynamic_jobs(
+        self,
+        academic_title: Optional[str] = None,
+        technical_skills: Optional[list] = None,
+        soft_skills: Optional[list] = None,
+        courses: Optional[list] = None,
+        projects: Optional[list] = None,
+        career_interests: Optional[list] = None,
+    ) -> list:
+        """
+        Dynamically generate job matches for ANY student background (ECE, Civil, CS, MBA etc.)
+        using Groq AI based on their actual profile.
+        Returns list of job dicts: [{title, company, description, required_skills, location, industry, match_score}]
+        """
+        import json, re
+        skills_text = ", ".join([s.get("name", "") if isinstance(s, dict) else str(s) for s in (technical_skills or [])][:10])
+        courses_text = ", ".join([c.get("title", "") if isinstance(c, dict) else str(c) for c in (courses or [])][:10])
+        projects_text = ", ".join([p.get("title", "") if isinstance(p, dict) else str(p) for p in (projects or [])][:5])
+        interests_text = ", ".join(career_interests or [])
+
+        prompt = f"""You are a career advisor. Generate 16 highly relevant job opportunities for a student with the following profile.
+The jobs must be SPECIFIC to their background — if they are ECE, suggest embedded/hardware/signal processing roles. If Civil, suggest structural/construction roles. If CS, suggest software roles. If MBA, suggest business/management roles. Do NOT default to generic tech jobs unless their background is in tech.
+
+Student Profile:
+- Academic Background: {academic_title or 'Not specified'}
+- Technical Skills: {skills_text or 'Not specified'}
+- Courses: {courses_text or 'Not specified'}
+- Projects: {projects_text or 'Not specified'}
+- Career Interests: {interests_text or 'Not specified'}
+
+Generate exactly 16 job opportunities. Jobs matching career interests should have higher match_score (85-98). Others should have 65-84.
+
+Return ONLY a JSON array with this exact format:
+[
+  {{
+    "title": "Job Title",
+    "company": "Company Name",
+    "description": "One sentence job description.",
+    "required_skills": "Skill1, Skill2, Skill3, Skill4",
+    "location": "City, State or Remote",
+    "industry": "Industry Name",
+    "match_score": 92
+  }}
+]
+
+Use real company names. Be specific to the student's background. Return only the JSON array."""
+
+        try:
+            response = await self.generate_response(prompt, max_tokens=2500, temperature=0.7)
+            response = response.strip()
+            match = re.search(r'\[[\s\S]*\]', response)
+            if match:
+                jobs = json.loads(match.group())
+                result = []
+                for i, j in enumerate(jobs[:16]):
+                    if isinstance(j, dict) and j.get("title"):
+                        result.append({
+                            "id": 1000 + i,
+                            "title": str(j.get("title", "")).strip(),
+                            "company": str(j.get("company", "")).strip(),
+                            "description": str(j.get("description", "")).strip(),
+                            "required_skills": str(j.get("required_skills", "")).strip(),
+                            "location": str(j.get("location", "")).strip(),
+                            "industry": str(j.get("industry", "")).strip(),
+                            "salary": None,
+                            "job_type": "Full-time",
+                            "match_score": min(100, max(50, int(j.get("match_score", 75)))),
+                        })
+                return sorted(result, key=lambda x: -x["match_score"])
+        except Exception:
+            pass
+        return []
+
     async def extract_profile(
         self,
         resume_text: Optional[str] = None,

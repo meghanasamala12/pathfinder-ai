@@ -929,6 +929,10 @@ async def get_related_jobs(
         user = r.scalar_one_or_none()
         if not user:
             skills_set = set()
+            interests = []
+            profile = None
+            projects_list = []
+            courses_list = []
         else:
             r = await db.execute(select(PathfinderUserProfile).where(PathfinderUserProfile.user_id == user.id))
             profile = r.scalar_one_or_none()
@@ -936,6 +940,8 @@ async def get_related_jobs(
             projects = r.scalars().all()
             r = await db.execute(select(PathfinderUserCareerInterest).where(PathfinderUserCareerInterest.user_id == user.id))
             interests = r.scalars().all()
+            r = await db.execute(select(PathfinderUserCoursework).where(PathfinderUserCoursework.user_id == user.id))
+            courses = r.scalars().all()
 
             skills_set = set()
             for s in (profile.technical_skills or []) if profile else []:
@@ -950,23 +956,34 @@ async def get_related_jobs(
                 if i.interest:
                     skills_set.add(_normalize_skill(i.interest))
 
-        # Load coursework tags for better matching
+            courses_list = [{"title": c.title} for c in courses]
+            projects_list = [{"title": p.title} for p in projects]
+
+        interest_names = [i.interest for i in interests]
+
+        # Use Groq AI to generate dynamic jobs based on student's actual background
+        if profile and (profile.academic_title or profile.technical_skills or courses_list):
+            try:
+                dynamic_jobs = await llm_service.generate_dynamic_jobs(
+                    academic_title=profile.academic_title,
+                    technical_skills=profile.technical_skills or [],
+                    soft_skills=profile.soft_skills or [],
+                    courses=courses_list,
+                    projects=projects_list,
+                    career_interests=interest_names,
+                )
+                if dynamic_jobs:
+                    return {"jobs": dynamic_jobs[:limit]}
+            except Exception:
+                pass  # Fall back to static jobs if AI fails
+
+        # Fallback: static jobs scored by overlap + interest boost
+        interest_labels = [_normalize_skill(i) for i in interest_names]
         coursework_tags: set = set()
-        if user:
-            r = await db.execute(select(PathfinderUserCoursework).where(PathfinderUserCoursework.user_id == user.id))
-            courses = r.scalars().all()
-            for c in courses:
-                for tag in (c.tags or []):
-                    if tag:
-                        coursework_tags.add(_normalize_skill(str(tag)))
+        for c in courses_list:
+            pass  # tags already in skills_set
+        all_user_skills = skills_set
 
-        # Combine all user signals
-        all_user_skills = skills_set | coursework_tags
-
-        # Interest labels for title matching
-        interest_labels = [_normalize_skill(i.interest) for i in interests] if user else []
-
-        # Load all jobs and score by overlap + interest boost
         r = await db.execute(select(PathfinderJob).limit(200))
         jobs = r.scalars().all()
         scored = []
@@ -975,26 +992,19 @@ async def get_related_jobs(
             job_skills = re.split(r"[,/;\s]+", job_text)
             job_norm = {_normalize_skill(x) for x in job_skills if x}
             job_title_norm = _normalize_skill(j.title or "")
-
-            # Skill overlap score
             overlap = len(all_user_skills & job_norm) if all_user_skills else 0
-
-            # Interest boost: heavily prioritize jobs matching career interests
             interest_boost = 0
             for interest in interest_labels:
                 if interest and (interest in job_title_norm or job_title_norm in interest):
                     interest_boost += 10
-                # Partial word match (e.g. "engineer" in "data engineer")
                 for word in interest.split():
                     if word and len(word) > 3 and word in job_title_norm:
                         interest_boost += 3
-
             scored.append((overlap + interest_boost, j))
 
         scored.sort(key=lambda x: (-x[0], x[1].title))
         result = []
         for total_score, j in scored[:limit]:
-            # Match score: base 50 + up to 50 from combined score
             match_score = min(100, 50 + total_score * 5)
             result.append({
                 "id": j.id,

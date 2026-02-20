@@ -376,13 +376,15 @@ export default function CompanySuggestions() {
                             </div>
                           )}
                           <div className="flex gap-2 mt-4">
-                            <button
-                              type="button"
+                            <a
+                              href={`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent((job.title || '') + ' ' + (job.company || ''))}&location=United%20States`}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700"
                             >
                               <ExternalLink className="w-4 h-4" />
-                              View Details
-                            </button>
+                              View on LinkedIn
+                            </a>
                             <button
                               type="button"
                               onClick={() => toggleSave(job.id)}
