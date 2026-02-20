@@ -750,6 +750,8 @@ class SaveProfileRequest(BaseModel):
     profile_projects: Optional[List[dict]] = None
     documents: Optional[List[dict]] = None
     career_interests: Optional[List[str]] = None
+    linkedin_url: Optional[str] = None
+    university: Optional[str] = None
 
 
 @router.post("/career/save-profile")
@@ -781,6 +783,8 @@ async def save_profile(request: SaveProfileRequest, db: AsyncSession = Depends(g
         profile.academic_title = request.academic_title or ""
         profile.technical_skills = request.technical_skills or []
         profile.soft_skills = request.soft_skills or []
+        if request.linkedin_url is not None:
+            profile.linkedin_url = request.linkedin_url
 
         # Replace coursework
         await db.execute(delete(PathfinderUserCoursework).where(PathfinderUserCoursework.user_id == user.id))
@@ -862,6 +866,7 @@ async def get_profile(
                 "academic_title": profile.academic_title if profile else "",
                 "technical_skills": profile.technical_skills if profile else [],
                 "soft_skills": profile.soft_skills if profile else [],
+                "linkedin_url": profile.linkedin_url if profile else "",
             },
             "courses": courses,
             "projects": projects,
@@ -1019,6 +1024,54 @@ async def get_related_jobs(
                 "match_score": match_score,
             })
         return {"jobs": result}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class GenerateAlumniRequest(BaseModel):
+    email: str
+
+
+@router.post("/career/generate-alumni")
+async def generate_alumni_endpoint(request: GenerateAlumniRequest, db: AsyncSession = Depends(get_db)):
+    """Generate AI alumni profiles based on user's university and career interests."""
+    email = (request.email or "").strip().lower()
+    if not email:
+        raise HTTPException(status_code=400, detail="Email required.")
+    try:
+        r = await db.execute(select(PathfinderUser).where(PathfinderUser.email == email))
+        user = r.scalar_one_or_none()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found.")
+
+        r = await db.execute(select(PathfinderUserProfile).where(PathfinderUserProfile.user_id == user.id))
+        profile = r.scalar_one_or_none()
+
+        r = await db.execute(select(PathfinderUserCareerInterest).where(PathfinderUserCareerInterest.user_id == user.id))
+        interests = [i.interest for i in r.scalars().all()]
+
+        academic_title = profile.academic_title if profile else ""
+        technical_skills = profile.technical_skills if profile else []
+
+        # Use academic_title as university context
+        university = academic_title.split("•")[0].strip() if academic_title else "a university"
+        if not university:
+            university = "a university"
+
+        linkedin_url = profile.linkedin_url if profile else ""
+        linkedin_username = ""
+        if linkedin_url:
+            linkedin_username = linkedin_url.rstrip("/").split("/")[-1]
+
+        alumni = await llm_service.generate_alumni(
+            university=university,
+            career_interests=interests,
+            technical_skills=technical_skills,
+            linkedin_username=linkedin_username,
+        )
+        return {"alumni": alumni}
     except HTTPException:
         raise
     except Exception as e:

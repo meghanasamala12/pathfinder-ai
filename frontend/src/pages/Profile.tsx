@@ -148,6 +148,8 @@ export default function Profile() {
   const [newCourse, setNewCourse] = useState({ title: '', term: '', grade: '', tagsInput: '' })
   const [careerInterests, setCareerInterests] = useState<string[]>([])
   const [newInterestInput, setNewInterestInput] = useState('')
+  const [linkedInUrl, setLinkedInUrl] = useState('')
+  const [linkedInSaved, setLinkedInSaved] = useState(false)
   const { user } = useAuth()
   const hasAnyDocuments = resumeFiles.length > 0 || courseworkFiles.length > 0 || projectFiles.length > 0
   const skipNextInterestsSave = useRef(true)
@@ -161,6 +163,7 @@ export default function Profile() {
           if (data.profile.academic_title) setProfileTitle(data.profile.academic_title)
           if (data.profile.technical_skills?.length) setTechnicalSkills(data.profile.technical_skills)
           if (data.profile.soft_skills?.length) setSoftSkills(data.profile.soft_skills)
+          if (data.profile.linkedin_url) setLinkedInUrl(data.profile.linkedin_url)
         }
         if (data.courses?.length) setCourses(data.courses)
         if (data.projects?.length) setProfileProjects(data.projects)
@@ -182,6 +185,18 @@ export default function Profile() {
     const seen = new Set<string>()
     return profileProjects.filter((p) => { const key = norm(p.title); if (seen.has(key)) return false; seen.add(key); return true })
   }, [profileProjects])
+
+  const handleSaveLinkedIn = async () => {
+    if (!user?.email) return
+    try {
+      await axios.post(`${API_BASE}/career/save-profile`, {
+        email: user.email,
+        linkedin_url: linkedInUrl,
+      })
+      setLinkedInSaved(true)
+      setTimeout(() => setLinkedInSaved(false), 2000)
+    } catch {}
+  }
 
   const handleUpdateProfile = async () => {
     if (!hasAnyDocuments) return
@@ -316,6 +331,41 @@ export default function Profile() {
         {profileError && (
           <div className="mb-6 p-3 rounded-lg bg-red-50 text-red-700 text-sm">{profileError}</div>
         )}
+
+        {/* LinkedIn Card */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">Connect Your LinkedIn</h2>
+          <p className="text-sm text-gray-500 mb-4">Add your LinkedIn profile so we can find relevant alumni for you in the Alumni Network.</p>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-gray-400">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </span>
+            <input
+              type="url"
+              value={linkedInUrl}
+              onChange={(e) => setLinkedInUrl(e.target.value)}
+              placeholder="https://linkedin.com/in/yourname"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleSaveLinkedIn}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              {linkedInSaved ? (
+                <><CheckIcon className="w-4 h-4" /> Saved!</>
+              ) : (
+                <>Save LinkedIn</>
+              )}
+            </button>
+            {linkedInUrl && (
+              <a href={linkedInUrl} target="_blank" rel="noopener noreferrer"
+                className="text-sm text-blue-600 hover:underline">View Profile →</a>
+            )}
+          </div>
+        </div>
 
         {/* Skills Overview */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">

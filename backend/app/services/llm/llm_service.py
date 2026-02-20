@@ -2,6 +2,7 @@
 LLM service for AI interactions
 Adapted from AI-Resume-Summarizer---Career-Navigator-main/src/helper.py
 """
+import json
 import os
 from typing import Optional
 from groq import Groq
@@ -609,3 +610,52 @@ Limit technical_skills to 6-8. Limit soft_skills to 3-5. Include all courses fro
             "courses": courses,
             "profile_projects": [],
         }
+
+    async def generate_alumni(
+        self,
+        university: str,
+        career_interests: list,
+        technical_skills: list,
+        linkedin_username: str = "",
+    ) -> list:
+        """Generate realistic alumni profiles based on user's university and interests."""
+        interests_str = ", ".join(career_interests) if career_interests else "technology, software engineering"
+        skills_str = ", ".join([s.get("name", s) if isinstance(s, dict) else str(s) for s in technical_skills]) if technical_skills else "Python, SQL"
+        linkedin_context = f"The user's LinkedIn username is {linkedin_username}. Generate alumni who would likely be in their network. " if linkedin_username else ""
+
+        prompt = f"""Generate 6 realistic alumni profiles for graduates from {university}.
+{linkedin_context}These alumni should be working in roles related to: {interests_str}.
+Their backgrounds should align with skills like: {skills_str}.
+
+Return ONLY a JSON array with exactly 6 objects. Each object must have:
+- name: full name (string)
+- role: current job title (string)
+- company: well-known company name (string)
+- location: city, state (string)
+- degree: their degree field (string)
+- class_year: graduation year between 2015-2023 (integer)
+- bio: 1-2 sentences about their work and willingness to help students (string)
+- expertise: array of 2-4 expertise areas (array of strings)
+- linkedin_search: their name formatted for LinkedIn search (string)
+
+Make profiles diverse in gender, background, and companies. Return ONLY the JSON array."""
+
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+                max_tokens=2000,
+            )
+            raw = response.choices[0].message.content.strip()
+            if "```" in raw:
+                raw = raw.split("```")[1]
+                if raw.startswith("json"):
+                    raw = raw[4:]
+            raw = raw.strip().rstrip("```").strip()
+            result = json.loads(raw)
+            if isinstance(result, list):
+                return result[:6]
+        except Exception as e:
+            print(f"generate_alumni error: {e}")
+        return []

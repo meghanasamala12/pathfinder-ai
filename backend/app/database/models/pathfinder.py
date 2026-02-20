@@ -13,6 +13,7 @@ class PathfinderUser(Base):
     name = Column(String(255))
     password_hash = Column(String(255))
     created_at = Column(TIMESTAMP, server_default=func.now())
+    linkedin_url = Column(String(500))
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
 
@@ -26,6 +27,7 @@ class PathfinderUserProfile(Base):
     resume_text = Column(Text)
     technical_skills = Column(JSONB, default=[])
     soft_skills = Column(JSONB, default=[])
+    linkedin_url = Column(String(500))
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
 
