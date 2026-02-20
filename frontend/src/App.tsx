@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import { ProfileProvider } from './contexts/ProfileContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import DashboardLayout from './components/DashboardLayout'
+import Profile from "./pages/Profile"
 import Dashboard from './pages/Dashboard'
 import CompanySuggestions from './pages/CompanySuggestions'
 import AlumniNetwork from './pages/AlumniNetwork'
@@ -35,7 +36,7 @@ function App() {
             element={
               <ProtectedRoute>
                 <DashboardLayout>
-                  <Dashboard />
+                  <Profile />
                 </DashboardLayout>
               </ProtectedRoute>
             }

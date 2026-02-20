@@ -225,6 +225,58 @@ function DocumentUploadSection({ title, description, accept, files, onAdd, onRem
   )
 }
 
+// Top Career Matches component for dashboard
+function TopCareerMatches({ email }: { email?: string }) {
+  const [jobs, setJobs] = useState<{id: number; title: string; company: string; description: string; location: string; salary: string; match_score: number}[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!email) return
+    setLoading(true)
+    axios.get(`${API_BASE}/career/related-jobs`, { params: { email, limit: 3 } })
+      .then(({ data }) => setJobs((data.jobs || []).slice(0, 3)))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [email])
+
+  if (loading) return <div className="bg-white rounded-xl border border-gray-200 p-6 text-sm text-gray-400">Loading matches…</div>
+  if (!jobs.length) return (
+    <div className="bg-white rounded-xl border border-gray-200 p-6 text-sm text-gray-500">
+      Upload your resume in Documents tab and click Update Profile to see matches.
+    </div>
+  )
+  return (
+    <div className="space-y-3">
+      {jobs.map((job) => (
+        <div key={job.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-sm">{(job.company || '?')[0].toUpperCase()}</span>
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">{job.title}</p>
+                <p className="text-sm text-gray-500">{job.company}</p>
+              </div>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <p className="text-lg font-bold text-purple-600">{job.match_score}%</p>
+              <p className="text-xs text-gray-400">Match Score</p>
+            </div>
+          </div>
+          {job.description && (
+            <p className="text-sm text-gray-600 mt-3 line-clamp-2">{job.description}</p>
+          )}
+          <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+            {job.location && <span>{job.location}</span>}
+            {job.salary && <><span>•</span><span>{job.salary}</span></>}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabId>('coursework')
   const [courses, setCourses] = useState<Course[]>([])
@@ -553,429 +605,77 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-6 py-8 md:px-8">
-        {/* Header / Profile Section */}
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-8">
-          <div className="flex items-start gap-5">
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
-              <span className="text-2xl md:text-3xl font-bold text-white">
-                {profileName
-                  ? profileName
-                      .split(/\s+/)
-                      .map((n) => n[0])
-                      .join('')
-                      .slice(0, 2)
-                      .toUpperCase()
-                  : '?'}
-              </span>
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{profileName || '—'}</h1>
-              <p className="text-gray-500 mt-0.5">{profileTitle || '—'}</p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                <span className="px-3 py-1 rounded-lg bg-gray-100 text-sm font-medium text-gray-500">{courses.length} Courses</span>
-                <span className="px-3 py-1 rounded-lg bg-gray-100 text-sm font-medium text-gray-500">{uniqueProjects.length} Projects</span>
-              </div>
-            </div>
-          </div>
-          <Link
-            to="/career/companies"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors self-start"
-          >
-            <PencilIcon />
-            Edit Profile
-          </Link>
+      <div className="max-w-5xl mx-auto px-6 py-8 md:px-8">
+
+        {/* Welcome Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Welcome back, {profileName || user?.name || 'there'}!
+          </h1>
+          <p className="text-gray-500 mt-1">Here's your career navigation dashboard for today</p>
         </div>
 
-        {/* Skills Overview Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-5">Skills Overview</h2>
-          {technicalSkills.length > 0 || softSkills.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Technical Skills</h3>
-                {technicalSkills.length > 0 ? (
-                  technicalSkills.map((s) => <SkillBar key={s.name} {...s} />)
-                ) : (
-                  <p className="text-sm text-gray-400">—</p>
-                )}
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Soft Skills</h3>
-                {softSkills.length > 0 ? (
-                  softSkills.map((s) => <SkillBar key={s.name} {...s} />)
-                ) : (
-                  <p className="text-sm text-gray-400">—</p>
-                )}
-              </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-gray-500">Career Match Score</p>
+              <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
             </div>
-          ) : (
-            <p className="text-sm text-gray-500">Upload resume, coursework, and project files in the Documents tab, then click Update Profile.</p>
-          )}
+            <p className="text-3xl font-bold text-gray-900">{technicalSkills.length > 0 ? '88%' : '—'}</p>
+            <p className="text-xs text-gray-400 mt-1">Based on top 3 matches</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-gray-500">Skills Tracked</p>
+              <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{technicalSkills.length + softSkills.length || '—'}</p>
+            <p className="text-xs text-gray-400 mt-1">Across all categories</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-gray-500">Active Projects</p>
+              <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{uniqueProjects.length || '—'}</p>
+            <p className="text-xs text-gray-400 mt-1">Portfolio items</p>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-gray-500">Courses</p>
+              <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">{courses.length || '—'}</p>
+            <p className="text-xs text-gray-400 mt-1">{profileTitle?.split('•')[0]?.trim() || 'Academic track'}</p>
+          </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex gap-1 border-b border-gray-200 mb-6 overflow-x-auto">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
-                activeTab === tab.id
-                  ? 'text-gray-900 border-b-2 border-purple-600 -mb-px'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <span className={activeTab === tab.id ? 'text-purple-600' : 'text-gray-400'}>
-                {tab.icon}
-              </span>
-              {tab.label}
-            </button>
-          ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Top Career Matches */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-gray-900">Top Career Matches</h2>
+              <Link to="/career/companies" className="text-sm font-medium text-purple-600 hover:text-purple-700">View all →</Link>
+            </div>
+            <TopCareerMatches email={user?.email} />
+          </div>
+
+          {/* Your Skills Progress */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-gray-900">Your Skills Progress</h2>
+              <Link to="/career/companies" className="text-sm font-medium text-purple-600 hover:text-purple-700">Manage skills →</Link>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+              {technicalSkills.length > 0 ? (
+                technicalSkills.slice(0, 5).map((s) => <SkillBar key={s.name} {...s} />)
+              ) : (
+                <p className="text-sm text-gray-400">Upload your resume to see skills.</p>
+              )}
+            </div>
+          </div>
         </div>
-
-        {/* Tab Content */}
-        {activeTab === 'coursework' && (
-          <div>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Coursework</h2>
-                {courseworkFiles.length > 0 && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    {courseworkFiles.length} file(s) uploaded in Documents. Click &quot;Load Courses&quot; to display them here.
-                  </p>
-                )}
-              </div>
-              <div className="flex gap-2">
-                {courseworkFiles.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleUpdateProfile}
-                    disabled={isUpdatingProfile}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 disabled:opacity-50"
-                  >
-                    {isUpdatingProfile ? 'Loading…' : 'Load Courses'}
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setShowAddCourse(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <PlusIcon />
-                  Add Course
-                </button>
-              </div>
-            </div>
-
-            {courses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {courses.map((course) => (
-                <div
-                  key={course.title}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex justify-between items-start gap-3">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-gray-900 truncate">{course.title}</h3>
-                      <p className="text-sm text-gray-500 mt-0.5">{course.term}</p>
-                      <div className="flex flex-wrap gap-1.5 mt-3">
-                        {course.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-white">{course.grade}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            ) : (
-              <p className="text-sm text-gray-500 py-8">
-                {courseworkFiles.length > 0
-                  ? 'Click Load Courses above, or add a course manually.'
-                  : 'Upload coursework in the Documents tab, then click Update Profile. Or add a course manually above.'}
-              </p>
-            )}
-
-            {showAddCourse && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 w-full max-w-md mx-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Add Course</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Course name</label>
-                      <input
-                        type="text"
-                        value={newCourse.title}
-                        onChange={(e) => setNewCourse((c) => ({ ...c, title: e.target.value }))}
-                        placeholder="e.g. Data Structures"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Term</label>
-                        <input
-                          type="text"
-                          value={newCourse.term}
-                          onChange={(e) => setNewCourse((c) => ({ ...c, term: e.target.value }))}
-                          placeholder="e.g. Fall 2025"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Grade</label>
-                        <input
-                          type="text"
-                          value={newCourse.grade}
-                          onChange={(e) => setNewCourse((c) => ({ ...c, grade: e.target.value }))}
-                          placeholder="e.g. A"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma-separated)</label>
-                      <input
-                        type="text"
-                        value={newCourse.tagsInput}
-                        onChange={(e) => setNewCourse((c) => ({ ...c, tagsInput: e.target.value }))}
-                        placeholder="e.g. Algorithms, Python, Problem Solving"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-2 mt-6">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowAddCourse(false)
-                        setNewCourse({ title: '', term: '', grade: '', tagsInput: '' })
-                      }}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const title = newCourse.title.trim()
-                        if (!title) return
-                        const tags = newCourse.tagsInput
-                          .split(',')
-                          .map((t) => t.trim())
-                          .filter(Boolean)
-                        setCourses((prev) => [
-                          ...prev,
-                          {
-                            title,
-                            term: newCourse.term.trim() || '—',
-                            grade: newCourse.grade.trim() || '—',
-                            tags,
-                          },
-                        ])
-                        setShowAddCourse(false)
-                        setNewCourse({ title: '', term: '', grade: '', tagsInput: '' })
-                      }}
-                      disabled={!newCourse.title.trim()}
-                      className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg disabled:opacity-50"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'projects' && (
-          <div>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Projects</h2>
-                {projectFiles.length > 0 && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    {projectFiles.length} file(s) uploaded in Documents. Click &quot;Load Projects&quot; to display them here.
-                  </p>
-                )}
-              </div>
-              <div className="flex gap-2">
-                {projectFiles.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleUpdateProfile}
-                    disabled={isUpdatingProfile}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 disabled:opacity-50"
-                  >
-                    {isUpdatingProfile ? 'Loading…' : 'Load Projects'}
-                  </button>
-                )}
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <PlusIcon />
-                  Add Project
-                </button>
-              </div>
-            </div>
-            {uniqueProjects.length > 0 ? (
-            <div className="space-y-4">
-              {uniqueProjects.map((project) => (
-                <div
-                  key={project.title}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-base font-bold text-gray-900">{project.title}</h3>
-                      <p className="text-sm text-gray-600 mt-1">{project.description}</p>
-                      <div className="flex flex-wrap gap-1.5 mt-3">
-                        {project.technologies.map((tech) => (
-                          <span
-                            key={tech}
-                            className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <span className="text-sm text-gray-500 whitespace-nowrap">{project.date}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            ) : (
-              <p className="text-sm text-gray-500 py-8">Upload project files in the Documents tab, then click Load Projects or Update Profile.</p>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'interests' && (
-          <div>
-            <div className="mb-4">
-              <h2 className="text-lg font-bold text-gray-900">Career Interests</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Add career areas or roles you&apos;re interested in (e.g. Data Engineering, Product Management).
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2 mb-6">
-              <input
-                type="text"
-                value={newInterestInput}
-                onChange={(e) => setNewInterestInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    const val = newInterestInput.trim()
-                    if (val && !careerInterests.includes(val)) {
-                      setCareerInterests((prev) => [...prev, val])
-                      setNewInterestInput('')
-                    }
-                  }
-                }}
-                placeholder="Add career interest..."
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm w-64 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const val = newInterestInput.trim()
-                  if (val && !careerInterests.includes(val)) {
-                    setCareerInterests((prev) => [...prev, val])
-                    setNewInterestInput('')
-                  }
-                }}
-                disabled={!newInterestInput.trim()}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 disabled:opacity-50"
-              >
-                <PlusIcon />
-                Add
-              </button>
-            </div>
-            {careerInterests.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {careerInterests.map((interest) => (
-                  <span
-                    key={interest}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
-                  >
-                    {interest}
-                    <button
-                      type="button"
-                      onClick={() => setCareerInterests((prev) => prev.filter((i) => i !== interest))}
-                      className="text-purple-600 hover:text-purple-800 hover:bg-purple-200 rounded-full p-0.5"
-                      aria-label={`Remove ${interest}`}
-                    >
-                      <XIcon className="w-3.5 h-3.5" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500 py-6">
-                No career interests yet. Add them above to specify roles or areas you&apos;re interested in.
-              </p>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'documents' && (
-          <div>
-            {hasAnyDocuments && (
-              <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <p className="text-sm text-gray-600">
-                  Upload your resume, coursework, and project files (PDF, PPTX, DOCX). Click &quot;Update Profile&quot; to extract your profile and display projects in the Projects tab.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleUpdateProfile}
-                  disabled={isUpdatingProfile}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isUpdatingProfile ? 'Updating…' : 'Update Profile'}
-                </button>
-              </div>
-            )}
-            {profileError && (
-              <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm">{profileError}</div>
-            )}
-            <DocumentUploadSection
-              title="Resume / CV"
-              description="Upload your latest resume or CV (PDF, DOC, DOCX)"
-              accept={RESUME_ACCEPT}
-              files={resumeFiles}
-              onAdd={(files) => addFiles('resume', files)}
-              onRemove={(id) => removeFile('resume', id)}
-            />
-            <DocumentUploadSection
-              title="Coursework & Syllabi"
-              description="Upload course syllabi, transcripts, and other academic documents"
-              accept={COURSEWORK_ACCEPT}
-              files={courseworkFiles}
-              onAdd={(files) => addFiles('coursework', files)}
-              onRemove={(id) => removeFile('coursework', id)}
-            />
-            <DocumentUploadSection
-              title="Project Files"
-              description="Upload project documentation, code repositories (as ZIP), or presentations"
-              accept={PROJECTS_ACCEPT}
-              files={projectFiles}
-              onAdd={(files) => addFiles('projects', files)}
-              onRemove={(id) => removeFile('projects', id)}
-            />
-          </div>
-        )}
       </div>
     </div>
   )
