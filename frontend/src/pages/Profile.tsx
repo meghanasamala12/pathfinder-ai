@@ -152,7 +152,7 @@ export default function Profile() {
   const [linkedInSaved, setLinkedInSaved] = useState(false)
   const { user } = useAuth()
   const hasAnyDocuments = resumeFiles.length > 0 || courseworkFiles.length > 0 || projectFiles.length > 0
-  const skipNextInterestsSave = useRef(true)
+  const [profileLoaded, setProfileLoaded] = useState(false)
 
   useEffect(() => {
     if (!user?.email) return
@@ -168,17 +168,17 @@ export default function Profile() {
         if (data.courses?.length) setCourses(data.courses)
         if (data.projects?.length) setProfileProjects(data.projects)
         if (data.career_interests?.length) setCareerInterests(data.career_interests)
-        skipNextInterestsSave.current = true
-      }).catch(() => {})
+        setProfileLoaded(true)
+      }).catch(() => { setProfileLoaded(true) })
   }, [user?.email])
 
   useEffect(() => {
-    if (!user?.email || skipNextInterestsSave.current) { skipNextInterestsSave.current = false; return }
+    if (!user?.email || !profileLoaded) return
     const t = setTimeout(() => {
       axios.put(`${API_BASE}/career/profile/career-interests`, { email: user.email, career_interests: careerInterests }).catch(() => {})
     }, 500)
     return () => clearTimeout(t)
-  }, [user?.email, careerInterests])
+  }, [user?.email, careerInterests, profileLoaded])
 
   const uniqueProjects = useMemo(() => {
     const norm = (t: string) => t.toLowerCase().trim().replace(/[\u2018\u2019\u201C\u201D]/g, "'").replace(/\s+/g, ' ')

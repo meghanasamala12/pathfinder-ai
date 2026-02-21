@@ -1000,11 +1000,17 @@ async def get_related_jobs(
             overlap = len(all_user_skills & job_norm) if all_user_skills else 0
             interest_boost = 0
             for interest in interest_labels:
-                if interest and (interest in job_title_norm or job_title_norm in interest):
-                    interest_boost += 10
-                for word in interest.split():
-                    if word and len(word) > 3 and word in job_title_norm:
-                        interest_boost += 3
+                if not interest:
+                    continue
+                interest_words = [w for w in interest.split() if len(w) > 2]
+                # Strong match: all interest words found in job title
+                if all(w in job_title_norm for w in interest_words):
+                    interest_boost += 20
+                # Partial match: any interest word found in job title
+                else:
+                    for word in interest_words:
+                        if word in job_title_norm:
+                            interest_boost += 5
             scored.append((overlap + interest_boost, j))
 
         scored.sort(key=lambda x: (-x[0], x[1].title))

@@ -43,7 +43,6 @@ const navItems = [
   { to: '/profile', label: 'Profile', icon: UserIcon },
   { to: '/career/companies', label: 'Career Matches', icon: BriefcaseIcon },
   { to: '/gap-analysis', label: 'Gap Analysis', icon: ChartBarIcon },
-  { to: '/learning-paths', label: 'Learning Paths', icon: BookOpenIcon },
   { to: '/alumni', label: 'Alumni Network', icon: UserGroupIcon },
 ]
 
