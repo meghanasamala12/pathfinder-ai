@@ -116,6 +116,7 @@ export default function AlumniNetwork() {
   const [alumni, setAlumni] = useState<Alumni[]>([])
   const [loading, setLoading] = useState(false)
   const [university, setUniversity] = useState('')
+  const [linkedInUrl, setLinkedInUrl] = useState('')
   const [search, setSearch] = useState('')
   const [companyFilter, setCompanyFilter] = useState('')
   const [expertiseFilter, setExpertiseFilter] = useState('')
@@ -128,9 +129,37 @@ export default function AlumniNetwork() {
         const title = data.profile?.academic_title || ''
         const uni = title.split('•')[0]?.trim() || title.split(',')[0]?.trim() || ''
         setUniversity(uni)
+        setLinkedInUrl(data.profile?.linkedin_url || '')
         setProfileLoaded(true)
       }).catch(() => setProfileLoaded(true))
   }, [user?.email])
+
+  // If LinkedIn URL not provided, show prompt
+  if (profileLoaded && !linkedInUrl) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6 py-8 md:px-8">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">Alumni Network</h1>
+            <p className="text-gray-500 mt-1">Connect with alumni from your university in your target companies and roles</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center max-w-lg mx-auto mt-16">
+            <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-5">
+              <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Connect Your LinkedIn First</h2>
+            <p className="text-gray-500 text-sm mb-6">To generate personalized alumni suggestions based on your career interests and background, please add your LinkedIn profile URL in your Profile settings.</p>
+            <a href="/profile"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition-colors">
+              Go to Profile → Add LinkedIn
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const generateAlumni = async () => {
     if (!user?.email) return

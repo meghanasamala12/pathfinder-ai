@@ -59,7 +59,7 @@ class Settings(BaseSettings):
     
     # File Upload
     UPLOAD_DIR: Path = ROOT_DIR / "uploads"
-    MAX_UPLOAD_SIZE: int = 15 * 1024 * 1024  # 15MB
+    MAX_UPLOAD_SIZE: int = 50 * 1024 * 1024  # 50MB
     ALLOWED_EXTENSIONS: list = [".pdf", ".docx", ".txt"]
     
     # RAG Settings

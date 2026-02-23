@@ -74,17 +74,14 @@ export default function GapAnalysis() {
     const userMap = Object.fromEntries(skills.map(s => [normalize(s.name), s.level]))
     const userNames = skills.map(s => normalize(s.name))
     const required = parseSkills(job.required_skills)
-
     const matched: {name:string;level:number}[] = []
     const missing: {name:string}[] = []
-
     required.forEach(skill => {
       const norm = normalize(skill)
       const found = userNames.find(u => u.includes(norm) || norm.includes(u))
       if (found) matched.push({ name: skill, level: userMap[found] || 70 })
       else missing.push({ name: skill })
     })
-
     const matchPct = required.length ? Math.round((matched.length / required.length) * 100) : 0
     const readiness = required.length ? Math.round((matched.length / required.length) * 100) : 0
     return { matched, missing, matchPct, readiness }
@@ -117,14 +114,11 @@ export default function GapAnalysis() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-6 py-8 md:px-8">
-
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Gap Analysis</h1>
           <p className="text-gray-500 mt-1">Identify skill gaps and get personalized recommendations to reach your career goals</p>
         </div>
 
-        {/* Role Selector */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
           <label className="block text-sm font-semibold text-gray-700 mb-3">Select Target Role</label>
           <div className="flex items-center gap-3">
@@ -132,14 +126,13 @@ export default function GapAnalysis() {
               <div className="w-3 h-3 rounded-full bg-indigo-600 ring-2 ring-indigo-200"></div>
             </div>
             <select value={selectedId ?? ''} onChange={e => setSelectedId(Number(e.target.value))}
-              className="flex-1 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-indigo-500 bg-white">
+              className="flex-1 max-w-sm px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-indigo-500 bg-white">
               {jobs.map(j => <option key={j.id} value={j.id}>{j.title} at {j.company} — {j.match_score}% match</option>)}
             </select>
           </div>
           {job && <p className="text-xs text-gray-400 mt-2 ml-11">{job.location} · {job.description.slice(0, 90)}…</p>}
         </div>
 
-        {/* Stat Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-3"><span className="text-sm text-gray-500 font-medium">Overall Readiness</span><TrendIcon /></div>
@@ -160,9 +153,7 @@ export default function GapAnalysis() {
           </div>
         </div>
 
-        {/* Matched vs Missing */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {/* Have */}
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-sm font-bold">✓</span>
@@ -188,7 +179,6 @@ export default function GapAnalysis() {
             ) : <p className="text-sm text-gray-400">No matching skills found for this role.</p>}
           </div>
 
-          {/* Missing */}
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-sm font-bold">✕</span>
@@ -211,14 +201,12 @@ export default function GapAnalysis() {
               </div>
             ) : (
               <div className="text-center py-6">
-                <p className="text-green-600 font-semibold text-lg">🎉 You have all required skills!</p>
-                <p className="text-sm text-gray-400 mt-1">You're a great fit for this role.</p>
+                <p className="text-green-600 font-semibold text-lg">You have all required skills!</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <h2 className="text-base font-bold text-gray-900 mb-4">Skills Comparison</h2>
@@ -253,13 +241,12 @@ export default function GapAnalysis() {
               </ResponsiveContainer>
             ) : (
               <div className="h-64 flex items-center justify-center">
-                <p className="text-green-600 font-semibold text-center">🎉 No skill gaps!<br/><span className="text-sm font-normal text-gray-400">You meet all requirements.</span></p>
+                <p className="text-green-600 font-semibold text-center">No skill gaps!<br/><span className="text-sm font-normal text-gray-400">You meet all requirements.</span></p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Detailed Analysis — missing skills only */}
         {missing.length > 0 && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-6">Detailed Skill Analysis</h2>
@@ -298,7 +285,6 @@ export default function GapAnalysis() {
             </div>
           </div>
         )}
-
       </div>
     </div>
   )

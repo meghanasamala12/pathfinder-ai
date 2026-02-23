@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext'
 import { useProfile } from '../contexts/ProfileContext'
 import { API_BASE } from '../config'
 
-// Icons
 const GraduationCapIcon = ({ className = 'w-5 h-5' }: { className?: string }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
@@ -58,7 +57,6 @@ const XIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
 )
 
 type TabId = 'coursework' | 'projects' | 'interests' | 'documents'
-
 interface Skill { name: string; percent: number }
 interface Course { title: string; term: string; grade: string; tags: string[] }
 interface ProfileProject { title: string; description: string; technologies: string[]; date: string }
@@ -66,17 +64,16 @@ interface UploadedFile { id: string; file: File; size: string; date: string }
 
 const RESUME_ACCEPT = '.pdf,.doc,.docx'
 const COURSEWORK_ACCEPT = '.pdf,.doc,.docx'
-const PROJECTS_ACCEPT = '.pdf,.doc,.docx,.pptx,.zip'
 
 function SkillBar({ name, percent }: Skill) {
   return (
     <div className="mb-3 last:mb-0">
       <div className="flex justify-between items-center mb-1">
-        <span className="text-sm font-medium text-gray-800">{name}</span>
-        <span className="text-sm text-gray-500">{percent}%</span>
+        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{name}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">{percent}%</span>
       </div>
-      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div className="h-full bg-gray-900 rounded-full transition-all duration-500" style={{ width: `${percent}%` }} />
+      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-full bg-gray-900 dark:bg-purple-500 rounded-full transition-all duration-500" style={{ width: `${percent}%` }} />
       </div>
     </div>
   )
@@ -88,7 +85,6 @@ function DocumentUploadSection({ title, description, accept, files, onAdd, onRem
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [isDragging, setIsDragging] = useState(false)
-
   const handleDrop = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files?.length) onAdd(e.dataTransfer.files) }
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }
   const handleDragLeave = () => setIsDragging(false)
@@ -96,33 +92,35 @@ function DocumentUploadSection({ title, description, accept, files, onAdd, onRem
   const handleDownload = (uf: UploadedFile) => { const url = URL.createObjectURL(uf.file); const a = document.createElement('a'); a.href = url; a.download = uf.file.name; a.click(); URL.revokeObjectURL(url) }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-      <h3 className="text-base font-bold text-gray-900 mb-1">{title}</h3>
-      <p className="text-sm text-gray-500 mb-4">{description}</p>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+      <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">{title}</h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{description}</p>
       <div onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave}
-        className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${isDragging ? 'border-purple-500 bg-purple-50' : 'border-gray-300 bg-gray-50'}`}>
+        className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+          isDragging ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/30'
+        }`}>
         <UploadIcon className="w-10 h-10 mx-auto mb-2 text-gray-400" />
-        <p className="text-sm text-gray-600 mb-1">Drag and drop your files here, or browse</p>
-        <p className="text-xs text-gray-500 mb-4">Supported formats: {accept.split(',').map((e) => e.trim().replace(/^\./, '').toUpperCase()).join(', ')}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">Drag and drop your files here, or browse</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Supported formats: {accept.split(',').map((e) => e.trim().replace(/^\./, '').toUpperCase()).join(', ')}</p>
         <input ref={inputRef} type="file" accept={accept} multiple onChange={handleFileSelect} className="hidden" />
         <button type="button" onClick={() => inputRef.current?.click()}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
           <UploadIcon className="w-4 h-4" /> Choose Files
         </button>
       </div>
       {files.length > 0 && (
         <div className="mt-4">
-          <p className="text-sm font-medium text-gray-700 mb-2">Uploaded Files ({files.length})</p>
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Uploaded Files ({files.length})</p>
           <ul className="space-y-2">
             {files.map((uf) => (
-              <li key={uf.id} className="flex items-center justify-between gap-3 py-2 px-3 rounded-lg bg-gray-50 border border-gray-100">
-                <span className="text-sm font-medium text-gray-800 truncate flex-1">{uf.file.name}</span>
-                <span className="text-xs text-gray-500 whitespace-nowrap">{uf.size}</span>
-                <span className="text-xs text-gray-500 whitespace-nowrap">{uf.date}</span>
+              <li key={uf.id} className="flex items-center justify-between gap-3 py-2 px-3 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600">
+                <span className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate flex-1">{uf.file.name}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{uf.size}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{uf.date}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-green-600"><CheckIcon /></span>
-                  <button type="button" onClick={() => handleDownload(uf)} className="p-1 text-gray-500 hover:text-gray-700"><DownloadIcon /></button>
-                  <button type="button" onClick={() => onRemove(uf.id)} className="p-1 text-gray-500 hover:text-red-600"><XIcon /></button>
+                  <button type="button" onClick={() => handleDownload(uf)} className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"><DownloadIcon /></button>
+                  <button type="button" onClick={() => onRemove(uf.id)} className="p-1 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"><XIcon /></button>
                 </div>
               </li>
             ))}
@@ -189,10 +187,7 @@ export default function Profile() {
   const handleSaveLinkedIn = async () => {
     if (!user?.email) return
     try {
-      await axios.post(`${API_BASE}/career/save-profile`, {
-        email: user.email,
-        linkedin_url: linkedInUrl,
-      })
+      await axios.post(`${API_BASE}/career/save-profile`, { email: user.email, linkedin_url: linkedInUrl })
       setLinkedInSaved(true)
       setTimeout(() => setLinkedInSaved(false), 2000)
     } catch {}
@@ -200,14 +195,12 @@ export default function Profile() {
 
   const handleUpdateProfile = async () => {
     if (!hasAnyDocuments) return
-    setIsUpdatingProfile(true)
-    setProfileError('')
+    setIsUpdatingProfile(true); setProfileError('')
     try {
       let resumeText = ''
       let courseGrades: { course: string; grade: string | null; credits: string | null }[] = []
       let courseworkRawText = ''
       let projectTexts: string[] = []
-
       const normalizeTitle = (t: string) => t.toLowerCase().trim().replace(/[\u2018\u2019\u201C\u201D]/g, "'").replace(/\s+/g, ' ')
       const addProjectsUnique = (newProjects: ProfileProject[]) => {
         setProfileProjects((prev) => {
@@ -217,14 +210,12 @@ export default function Profile() {
           return toAdd.length > 0 ? [...prev, ...toAdd] : prev
         })
       }
-
       const resumePdf = resumeFiles.find((uf) => uf.file.name.toLowerCase().endsWith('.pdf'))
       if (resumePdf) {
         const fd = new FormData(); fd.append('file', resumePdf.file)
         const { data } = await axios.post<{ resume_text: string }>(`${API_BASE}/career/extract-resume-pdf`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
         resumeText = data.resume_text || ''
       }
-
       const courseworkPdf = courseworkFiles.find((uf) => uf.file.name.toLowerCase().endsWith('.pdf'))
       if (courseworkPdf) {
         const fd = new FormData(); fd.append('file', courseworkPdf.file)
@@ -232,61 +223,39 @@ export default function Profile() {
           `${API_BASE}/career/import-course-grades-pdf`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
         courseGrades = data.course_grades || []; courseworkRawText = data.extracted_text || ''
       }
-
-      const projectExtractable = projectFiles.filter((uf) => { const n = uf.file.name.toLowerCase(); return n.endsWith('.pdf') || n.endsWith('.pptx') || n.endsWith('.docx') })
-      if (projectExtractable.length > 0) {
-        const fd = new FormData(); projectExtractable.forEach((uf) => fd.append('files', uf.file))
-        const { data } = await axios.post<{ projects: { filename: string; text: string; error: string | null }[] }>(
-          `${API_BASE}/career/import-project-files`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-        projectTexts = (data.projects || []).filter((p) => !p.error).map((p) => `${p.filename}:\n${(p.text || '').trim().slice(0, 8000)}`)
-      }
-
       if (!resumeText && courseGrades.length === 0 && projectTexts.length === 0) {
-        setProfileError('Upload resume, coursework, or project files (PDF, PPTX, DOCX), then click Update Profile.')
+        setProfileError('Upload resume or coursework files, then click Update Profile.')
         setIsUpdatingProfile(false); return
       }
-
       const { data: profile } = await axios.post<{
         name: string | null; academic_title: string | null; technical_skills: Skill[]; soft_skills: Skill[]
         courses?: { title: string; term: string; grade: string; tags: string[] }[]
         profile_projects?: { title: string; description: string; technologies: string[]; date: string }[]
       }>(`${API_BASE}/career/extract-profile`, {
         resume_text: resumeText || undefined, course_grades: courseGrades.length > 0 ? courseGrades : undefined,
-        coursework_raw_text: courseworkRawText || undefined, projects: projectTexts.length > 0 ? projectTexts : undefined,
+        coursework_raw_text: courseworkRawText || undefined,
       })
-
       if (profile.name) setProfileName(profile.name)
       if (profile.academic_title) setProfileTitle(profile.academic_title)
       setTechnicalSkills(profile.technical_skills?.length ? profile.technical_skills : [])
       setSoftSkills(profile.soft_skills?.length ? profile.soft_skills : [])
-
-      if (profile.courses?.length) {
-        setCourses(profile.courses.map((c) => ({ title: c.title, term: c.term, grade: c.grade, tags: c.tags || [] })))
-      } else if (courseGrades.length > 0) {
-        setCourses(courseGrades.map((cg) => ({ title: cg.course, term: '—', grade: cg.grade || '—', tags: [] })))
-      }
-
+      if (profile.courses?.length) { setCourses(profile.courses.map((c) => ({ title: c.title, term: c.term, grade: c.grade, tags: c.tags || [] }))) }
+      else if (courseGrades.length > 0) { setCourses(courseGrades.map((cg) => ({ title: cg.course, term: '—', grade: cg.grade || '—', tags: [] }))) }
       const extracted = profile.profile_projects ?? []
-      if (extracted.length > 0) {
-        addProjectsUnique(extracted.map((p) => ({ title: p.title, description: p.description, technologies: p.technologies || [], date: p.date })))
-      }
-
+      if (extracted.length > 0) { addProjectsUnique(extracted.map((p) => ({ title: p.title, description: p.description, technologies: p.technologies || [], date: p.date }))) }
       if (user?.email) {
         const finalCourses = profile.courses?.length ? profile.courses : courseGrades.map((cg) => ({ title: cg.course, term: '—' as string, grade: cg.grade || '—', tags: [] as string[] }))
-        const finalProjects = extracted.length > 0 ? extracted.map((p) => ({ title: p.title, description: p.description, technologies: p.technologies || [], date: p.date })) : []
         await axios.post(`${API_BASE}/career/save-profile`, {
           email: user.email, name: profile.name || undefined, academic_title: profile.academic_title || undefined,
           technical_skills: profile.technical_skills || [], soft_skills: profile.soft_skills || [],
-          courses: finalCourses, profile_projects: finalProjects, career_interests: careerInterests,
+          courses: finalCourses, career_interests: careerInterests,
         }).catch(() => {})
         bumpProfileVersion()
       }
     } catch (err: unknown) {
       const detail = axios.isAxiosError(err) ? err.response?.data?.detail : null
       setProfileError(Array.isArray(detail) ? detail.map((x: { msg?: string }) => x.msg).join(' ') : String(err))
-    } finally {
-      setIsUpdatingProfile(false)
-    }
+    } finally { setIsUpdatingProfile(false) }
   }
 
   const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
@@ -297,7 +266,7 @@ export default function Profile() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-5xl mx-auto px-6 py-8 md:px-8">
 
         {/* Profile Header */}
@@ -309,91 +278,75 @@ export default function Profile() {
               </span>
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{profileName || '—'}</h1>
-              <p className="text-gray-500 mt-0.5">{profileTitle || '—'}</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{profileName || '—'}</h1>
+              <p className="text-gray-500 dark:text-gray-400 mt-0.5">{profileTitle || '—'}</p>
               <div className="flex flex-wrap gap-2 mt-3">
-                <span className="px-3 py-1 rounded-lg bg-gray-100 text-sm font-medium text-gray-600">{courses.length} Courses</span>
-                <span className="px-3 py-1 rounded-lg bg-gray-100 text-sm font-medium text-gray-600">{uniqueProjects.length} Projects</span>
+                <span className="px-3 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm font-medium text-gray-600 dark:text-gray-300">{courses.length} Courses</span>
+                <span className="px-3 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-sm font-medium text-gray-600 dark:text-gray-300">{uniqueProjects.length} Projects</span>
               </div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={handleUpdateProfile}
-            disabled={isUpdatingProfile || !hasAnyDocuments}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors self-start"
-          >
+          <button type="button" onClick={handleUpdateProfile} disabled={isUpdatingProfile || !hasAnyDocuments}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-900 dark:bg-gray-700 text-white text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors self-start">
             <PencilIcon />
             {isUpdatingProfile ? 'Updating…' : 'Update Profile'}
           </button>
         </div>
 
         {profileError && (
-          <div className="mb-6 p-3 rounded-lg bg-red-50 text-red-700 text-sm">{profileError}</div>
+          <div className="mb-6 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-sm">{profileError}</div>
         )}
 
         {/* LinkedIn Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-1">Connect Your LinkedIn</h2>
-          <p className="text-sm text-gray-500 mb-4">Add your LinkedIn profile so we can find relevant alumni for you in the Alumni Network.</p>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Connect Your LinkedIn</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Add your LinkedIn profile so we can find relevant alumni for you in the Alumni Network.</p>
           <div className="flex items-center gap-3 mb-4">
             <span className="text-gray-400">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
             </span>
-            <input
-              type="url"
-              value={linkedInUrl}
-              onChange={(e) => setLinkedInUrl(e.target.value)}
+            <input type="url" value={linkedInUrl} onChange={(e) => setLinkedInUrl(e.target.value)}
               placeholder="https://linkedin.com/in/yourname"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-            />
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
           </div>
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleSaveLinkedIn}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
-            >
-              {linkedInSaved ? (
-                <><CheckIcon className="w-4 h-4" /> Saved!</>
-              ) : (
-                <>Save LinkedIn</>
-              )}
+            <button type="button" onClick={handleSaveLinkedIn}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+              {linkedInSaved ? <><CheckIcon className="w-4 h-4" /> Saved!</> : <>Save LinkedIn</>}
             </button>
-            {linkedInUrl && (
-              <a href={linkedInUrl} target="_blank" rel="noopener noreferrer"
-                className="text-sm text-blue-600 hover:underline">View Profile →</a>
-            )}
+            {linkedInUrl && <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">View Profile →</a>}
           </div>
         </div>
 
         {/* Skills Overview */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-5">Skills Overview</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-5">Skills Overview</h2>
           {technicalSkills.length > 0 || softSkills.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Technical Skills</h3>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">Technical Skills</h3>
                 {technicalSkills.map((s) => <SkillBar key={s.name} {...s} />)}
               </div>
               <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Soft Skills</h3>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">Soft Skills</h3>
                 {softSkills.length > 0 ? softSkills.map((s) => <SkillBar key={s.name} {...s} />) : <p className="text-sm text-gray-400">—</p>}
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-500">Upload your resume and click Update Profile to see your skills here.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Upload your resume and click Update Profile to see your skills here.</p>
           )}
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex gap-1 border-b border-gray-200 mb-6 overflow-x-auto">
+        <div className="flex gap-1 border-b border-gray-200 dark:border-gray-700 mb-6 overflow-x-auto">
           {tabs.map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
-                activeTab === tab.id ? 'text-gray-900 border-b-2 border-purple-600 -mb-px' : 'text-gray-500 hover:text-gray-700'
+                activeTab === tab.id
+                  ? 'text-gray-900 dark:text-white border-b-2 border-purple-600 -mb-px'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               }`}>
-              <span className={activeTab === tab.id ? 'text-purple-600' : 'text-gray-400'}>{tab.icon}</span>
+              <span className={activeTab === tab.id ? 'text-purple-600 dark:text-purple-400' : 'text-gray-400'}>{tab.icon}</span>
               {tab.label}
             </button>
           ))}
@@ -403,27 +356,27 @@ export default function Profile() {
         {activeTab === 'coursework' && (
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-              <h2 className="text-lg font-bold text-gray-900">Coursework</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Coursework</h2>
               <button type="button" onClick={() => setShowAddCourse(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700">
                 <PlusIcon /> Add Course
               </button>
             </div>
             {courses.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {courses.map((course) => (
-                  <div key={course.title} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
+                  <div key={course.title} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start gap-3">
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-bold text-gray-900 truncate">{course.title}</h3>
-                        <p className="text-sm text-gray-500 mt-0.5">{course.term}</p>
+                        <h3 className="font-bold text-gray-900 dark:text-white truncate">{course.title}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{course.term}</p>
                         <div className="flex flex-wrap gap-1.5 mt-3">
                           {course.tags.map((tag) => (
-                            <span key={tag} className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">{tag}</span>
+                            <span key={tag} className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">{tag}</span>
                           ))}
                         </div>
                       </div>
-                      <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-gray-900 dark:bg-purple-700 flex items-center justify-center flex-shrink-0">
                         <span className="text-sm font-bold text-white">{course.grade}</span>
                       </div>
                     </div>
@@ -431,29 +384,29 @@ export default function Profile() {
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-                <p className="text-sm text-gray-500">No courses yet. Upload your transcript in Documents and click Update Profile.</p>
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400">No courses yet. Upload your transcript in Documents and click Update Profile.</p>
               </div>
             )}
             {showAddCourse && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">Add Course</h3>
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Add Course</h3>
                   <div className="space-y-3">
                     <input type="text" placeholder="Course title" value={newCourse.title} onChange={(e) => setNewCourse((p) => ({ ...p, title: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500" />
                     <div className="flex gap-2">
                       <input type="text" placeholder="Term (e.g. Fall 2024)" value={newCourse.term} onChange={(e) => setNewCourse((p) => ({ ...p, term: e.target.value }))}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500" />
                       <input type="text" placeholder="Grade" value={newCourse.grade} onChange={(e) => setNewCourse((p) => ({ ...p, grade: e.target.value }))}
-                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+                        className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500" />
                     </div>
                     <input type="text" placeholder="Tags (comma-separated)" value={newCourse.tagsInput} onChange={(e) => setNewCourse((p) => ({ ...p, tagsInput: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500" />
                   </div>
                   <div className="flex justify-end gap-2 mt-5">
                     <button type="button" onClick={() => { setShowAddCourse(false); setNewCourse({ title: '', term: '', grade: '', tagsInput: '' }) }}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">Cancel</button>
+                      className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">Cancel</button>
                     <button type="button" disabled={!newCourse.title.trim()}
                       onClick={() => {
                         const title = newCourse.title.trim(); if (!title) return
@@ -472,31 +425,29 @@ export default function Profile() {
         {/* Projects Tab */}
         {activeTab === 'projects' && (
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-900">Projects</h2>
-            </div>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Projects</h2>
             {uniqueProjects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {uniqueProjects.map((project) => (
-                  <div key={project.title} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-shadow">
+                  <div key={project.title} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-bold text-gray-900">{project.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1 line-clamp-3">{project.description}</p>
+                        <h3 className="font-bold text-gray-900 dark:text-white">{project.title}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-3">{project.description}</p>
                         <div className="flex flex-wrap gap-1.5 mt-3">
                           {project.technologies.map((tech) => (
-                            <span key={tech} className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700">{tech}</span>
+                            <span key={tech} className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">{tech}</span>
                           ))}
                         </div>
                       </div>
-                      <span className="text-sm text-gray-500 whitespace-nowrap">{project.date}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">{project.date}</span>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-                <p className="text-sm text-gray-500">No projects yet. Upload project files in Documents and click Update Profile.</p>
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400">No projects yet. Upload project files in Documents and click Update Profile.</p>
               </div>
             )}
           </div>
@@ -506,18 +457,14 @@ export default function Profile() {
         {activeTab === 'interests' && (
           <div>
             <div className="mb-4">
-              <h2 className="text-lg font-bold text-gray-900">Career Interests</h2>
-              <p className="text-sm text-gray-500 mt-1">Add career areas or roles you're interested in (e.g. Data Engineering, Product Management).</p>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Career Interests</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Add career areas or roles you're interested in.</p>
             </div>
             <div className="flex gap-2 mb-6">
               <input type="text" value={newInterestInput} onChange={(e) => setNewInterestInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') { e.preventDefault(); const val = newInterestInput.trim()
-                    if (val && !careerInterests.includes(val)) { setCareerInterests((prev) => [...prev, val]); setNewInterestInput('') }
-                  }
-                }}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const val = newInterestInput.trim(); if (val && !careerInterests.includes(val)) { setCareerInterests((prev) => [...prev, val]); setNewInterestInput('') } } }}
                 placeholder="Add career interest..."
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm w-64 focus:ring-2 focus:ring-purple-500 focus:border-purple-500" />
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm w-64 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500" />
               <button type="button"
                 onClick={() => { const val = newInterestInput.trim(); if (val && !careerInterests.includes(val)) { setCareerInterests((prev) => [...prev, val]); setNewInterestInput('') } }}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium hover:bg-purple-700">
@@ -527,17 +474,15 @@ export default function Profile() {
             {careerInterests.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {careerInterests.map((interest) => (
-                  <span key={interest} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                  <span key={interest} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
                     {interest}
                     <button type="button" onClick={() => setCareerInterests((prev) => prev.filter((i) => i !== interest))}
-                      className="text-purple-600 hover:text-purple-800 rounded-full p-0.5">
-                      <XIcon className="w-3.5 h-3.5" />
-                    </button>
+                      className="text-purple-600 dark:text-purple-400 hover:text-purple-800 rounded-full p-0.5"><XIcon className="w-3.5 h-3.5" /></button>
                   </span>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500 py-6">No career interests yet. Add them above to specify roles or areas you're interested in.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 py-6">No career interests yet.</p>
             )}
           </div>
         )}
@@ -547,7 +492,7 @@ export default function Profile() {
           <div>
             {hasAnyDocuments && (
               <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <p className="text-sm text-gray-600">Upload your resume, coursework, and project files (PDF, PPTX, DOCX). Click "Update Profile" to extract your profile.</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Upload your resume and coursework files. Click "Update Profile" to extract your profile.</p>
                 <button type="button" onClick={handleUpdateProfile} disabled={isUpdatingProfile}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 disabled:opacity-50 whitespace-nowrap">
                   {isUpdatingProfile ? 'Updating…' : 'Update Profile'}
@@ -558,8 +503,6 @@ export default function Profile() {
               accept={RESUME_ACCEPT} files={resumeFiles} onAdd={(files) => addFiles('resume', files)} onRemove={(id) => removeFile('resume', id)} />
             <DocumentUploadSection title="Coursework & Syllabi" description="Upload course syllabi, transcripts, and other academic documents"
               accept={COURSEWORK_ACCEPT} files={courseworkFiles} onAdd={(files) => addFiles('coursework', files)} onRemove={(id) => removeFile('coursework', id)} />
-            <DocumentUploadSection title="Project Files" description="Upload project documentation, code repositories (as ZIP), or presentations"
-              accept={PROJECTS_ACCEPT} files={projectFiles} onAdd={(files) => addFiles('projects', files)} onRemove={(id) => removeFile('projects', id)} />
           </div>
         )}
 

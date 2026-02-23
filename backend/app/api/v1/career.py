@@ -5,7 +5,7 @@ import os
 import re
 import uuid
 from pathlib import Path
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends, Query
+from fastapi import APIRouter, HTTPException, UploadFile, File, Depends, Query, Form
 from typing import List, Optional
 from pydantic import BaseModel
 from sqlalchemy import select, delete
@@ -599,6 +599,89 @@ async def import_project_files(files: List[UploadFile] = File(...)):
     return {"projects": results}
 
 
+@router.post("/career/save-project-files")
+async def save_project_files(
+    email: str = Form(...),
+    files: List[UploadFile] = File(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Extract text from project files, use LLM to parse project details, save to DB."""
+    from sqlalchemy import select as sa_select
+    user_r = await db.execute(sa_select(PathfinderUser).where(PathfinderUser.email == email))
+    user = user_r.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    allowed = (".pdf", ".pptx", ".docx")
+    project_texts = []
+    for u in files:
+        if not u.filename:
+            continue
+        low = u.filename.lower()
+        if not any(low.endswith(ext) for ext in allowed):
+            continue
+        file_id = str(uuid.uuid4())
+        ext = ".pptx" if low.endswith(".pptx") else ".pdf" if low.endswith(".pdf") else ".docx"
+        save_path = settings.UPLOAD_DIR / f"project_{file_id}{ext}"
+        try:
+            content_bytes = await u.read()
+            if len(content_bytes) > settings.MAX_UPLOAD_SIZE:
+                continue
+            with open(save_path, "wb") as f:
+                f.write(content_bytes)
+            if ext == ".pdf":
+                text = await resume_parser.parse_resume(str(save_path), preserve_case=True)
+                if not (text or "").strip():
+                    text = _extract_text_from_pdf_plumber(str(save_path))
+            elif ext == ".docx":
+                text = _extract_text_from_docx(str(save_path))
+            else:
+                text = _extract_text_from_pptx(str(save_path))
+            text = (text or "").strip()
+            if text:
+                project_texts.append(f"{u.filename}:\n{text[:8000]}")
+            elif u.filename:
+                project_texts.append(f"{u.filename}:\n[Content could not be extracted, infer from filename]")
+        except Exception as e:
+            project_texts.append(f"{u.filename}:\n[Error: {str(e)}, infer from filename]")
+        finally:
+            if save_path.exists():
+                try:
+                    os.remove(save_path)
+                except Exception:
+                    pass
+
+    if not project_texts:
+        return {"saved": 0, "message": "No files could be processed"}
+
+    # Use LLM to extract project details from the texts
+    result = await llm_service.extract_profile(projects=project_texts)
+    new_projects = result.get("profile_projects", [])
+
+    if not new_projects:
+        return {"saved": 0, "message": "LLM could not extract project details"}
+
+    # Merge into DB - only add projects with new titles
+    r = await db.execute(sa_select(PathfinderUserProject).where(PathfinderUserProject.user_id == user.id))
+    existing_titles = {p.title.lower().strip() for p in r.scalars().all()}
+    saved = 0
+    for p in new_projects:
+        title = (p.get("title") or "").strip()
+        if title and title.lower().strip() not in existing_titles:
+            db.add(PathfinderUserProject(
+                user_id=user.id,
+                title=title,
+                description=(p.get("description") or "")[:5000],
+                technologies=p.get("technologies") or [],
+                date=str(p.get("date", "—"))[:100],
+            ))
+            existing_titles.add(title.lower().strip())
+            saved += 1
+    await db.commit()
+    return {"saved": saved, "projects": new_projects}
+
+
+
 @router.post("/career/extract-resume-pdf")
 async def extract_resume_pdf(file: UploadFile = File(...)):
     """
@@ -798,17 +881,20 @@ async def save_profile(request: SaveProfileRequest, db: AsyncSession = Depends(g
                     tags=c.get("tags") or [],
                 ))
 
-        # Replace projects
-        await db.execute(delete(PathfinderUserProject).where(PathfinderUserProject.user_id == user.id))
-        for p in (request.profile_projects or []):
-            title = (p.get("title") or "").strip()
-            if title:
-                db.add(PathfinderUserProject(
-                    user_id=user.id, title=title,
-                    description=(p.get("description") or "")[:5000],
-                    technologies=p.get("technologies") or [],
-                    date=str(p.get("date", "—"))[:100],
-                ))
+        # Merge projects — only add new ones, don't wipe existing
+        if request.profile_projects:
+            r = await db.execute(select(PathfinderUserProject).where(PathfinderUserProject.user_id == user.id))
+            existing_titles = {p.title.lower().strip() for p in r.scalars().all()}
+            for p in request.profile_projects:
+                title = (p.get("title") or "").strip()
+                if title and title.lower().strip() not in existing_titles:
+                    db.add(PathfinderUserProject(
+                        user_id=user.id, title=title,
+                        description=(p.get("description") or "")[:5000],
+                        technologies=p.get("technologies") or [],
+                        date=str(p.get("date", "—"))[:100],
+                    ))
+                    existing_titles.add(title.lower().strip())
 
         # Replace career interests
         await db.execute(delete(PathfinderUserCareerInterest).where(PathfinderUserCareerInterest.user_id == user.id))

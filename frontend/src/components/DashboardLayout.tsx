@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Brain } from 'lucide-react'
+import { Brain, Moon, Sun } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
 
 const HomeIcon = ({ className = 'w-5 h-5' }: { className?: string }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -20,11 +21,6 @@ const BriefcaseIcon = ({ className = 'w-5 h-5' }: { className?: string }) => (
 const ChartBarIcon = ({ className = 'w-5 h-5' }: { className?: string }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-  </svg>
-)
-const BookOpenIcon = ({ className = 'w-5 h-5' }: { className?: string }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
   </svg>
 )
 const UserGroupIcon = ({ className = 'w-5 h-5' }: { className?: string }) => (
@@ -49,16 +45,16 @@ const navItems = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { logout } = useAuth()
   const navigate = useNavigate()
+  const { theme, toggleTheme } = useTheme()
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Left Sidebar */}
-      <aside className="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200 flex items-center gap-3">
-          <Brain className="w-10 h-10 flex-shrink-0 text-purple-600" strokeWidth={1.5} />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex">
+      <aside className="w-64 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
+          <Brain className="w-10 h-10 flex-shrink-0 text-purple-600 dark:text-purple-400" strokeWidth={1.5} />
           <div>
-            <h1 className="text-xl font-bold text-gray-900">PathFinder AI</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Your Career Navigator</p>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">PathFinder AI</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Your Career Navigator</p>
           </div>
         </div>
         <nav className="flex-1 p-4 space-y-1">
@@ -69,7 +65,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               end={to === '/'}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive ? 'bg-purple-50 text-purple-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  isActive
+                    ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white'
                 }`
               }
             >
@@ -78,21 +76,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </NavLink>
           ))}
         </nav>
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-1">
           <button
             type="button"
-            onClick={() => {
-              logout()
-              navigate('/login', { replace: true })
-            }}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            onClick={toggleTheme}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="w-5 h-5 flex-shrink-0" /> : <Moon className="w-5 h-5 flex-shrink-0" />}
+            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          </button>
+          <button
+            type="button"
+            onClick={() => { logout(); navigate('/login', { replace: true }) }}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
             <LogoutIcon className="w-5 h-5 flex-shrink-0" />
             Logout
           </button>
         </div>
       </aside>
-      {/* Main Content */}
       <main className="flex-1 overflow-auto">{children}</main>
     </div>
   )

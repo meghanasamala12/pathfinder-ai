@@ -21,27 +21,15 @@ const RESOURCE_LIBRARY: Record<string, Resource[]> = {
     { id: 'sql1', title: 'SQL for Data Science', provider: 'Coursera', type: 'course', level: 'beginner', duration: '4 weeks', skills: ['SQL', 'Data Analysis', 'Databases'], url: 'https://www.coursera.org/learn/sql-for-data-science', forSkill: 'SQL' },
     { id: 'sql2', title: 'Advanced SQL for Data Engineers', provider: 'Kaggle', type: 'course', level: 'intermediate', duration: 'Self-paced', skills: ['SQL', 'Window Functions', 'CTEs'], url: 'https://www.kaggle.com/learn/advanced-sql', forSkill: 'SQL' },
   ],
-  'Apache Spark': [
-    { id: 'spark1', title: 'Apache Spark with Python — PySpark', provider: 'Udemy', type: 'course', level: 'intermediate', duration: '10 weeks', skills: ['Apache Spark', 'PySpark', 'Big Data'], url: 'https://www.udemy.com/course/apache-spark-with-python-big-data-with-pyspark-and-spark/', forSkill: 'Apache Spark' },
-  ],
-  'Apache Beam': [
-    { id: 'beam1', title: 'Apache Beam & Dataflow on GCP', provider: 'Google Cloud', type: 'course', level: 'intermediate', duration: 'Self-paced', skills: ['Apache Beam', 'Dataflow', 'Streaming'], url: 'https://cloud.google.com/dataflow/docs/guides/beam-overview', forSkill: 'Apache Beam' },
-  ],
-  'Hadoop': [
-    { id: 'hadoop1', title: 'Hadoop Platform and Application Framework', provider: 'Coursera', type: 'course', level: 'intermediate', duration: '6 weeks', skills: ['Hadoop', 'HDFS', 'MapReduce'], url: 'https://www.coursera.org/learn/hadoop', forSkill: 'Hadoop' },
-  ],
   'AWS': [
     { id: 'aws1', title: 'AWS Cloud Practitioner Essentials', provider: 'AWS Training', type: 'course', level: 'beginner', duration: '6 hours', skills: ['AWS', 'Cloud Computing', 'S3', 'EC2'], url: 'https://aws.amazon.com/training/', forSkill: 'AWS' },
     { id: 'aws2', title: 'AWS Solutions Architect Associate', provider: 'A Cloud Guru', type: 'course', level: 'advanced', duration: '12 weeks', skills: ['AWS', 'Architecture', 'Security'], url: 'https://acloudguru.com/', forSkill: 'AWS' },
   ],
-  'Azure': [
-    { id: 'az1', title: 'Azure Fundamentals AZ-900', provider: 'Microsoft Learn', type: 'course', level: 'beginner', duration: 'Self-paced', skills: ['Azure', 'Cloud Computing', 'DevOps'], url: 'https://learn.microsoft.com/en-us/azure/', forSkill: 'Azure' },
+  'Docker': [
+    { id: 'dock1', title: 'Docker Mastery', provider: 'Udemy', type: 'course', level: 'intermediate', duration: '6 weeks', skills: ['Docker', 'Containers', 'DevOps'], url: 'https://www.udemy.com/course/docker-mastery/', forSkill: 'Docker' },
   ],
-  'GCP': [
-    { id: 'gcp1', title: 'Google Cloud Fundamentals: Core Infrastructure', provider: 'Google Cloud', type: 'course', level: 'beginner', duration: '8 hours', skills: ['GCP', 'Cloud Storage', 'BigQuery'], url: 'https://www.cloudskillsboost.google/', forSkill: 'GCP' },
-  ],
-  'Tableau': [
-    { id: 'tab1', title: 'Tableau for Data Scientists', provider: 'Tableau', type: 'course', level: 'beginner', duration: 'Self-paced', skills: ['Tableau', 'Data Visualization', 'Dashboards'], url: 'https://www.tableau.com/learn/training', forSkill: 'Tableau' },
+  'Kubernetes': [
+    { id: 'k8s1', title: 'Kubernetes for Developers', provider: 'Linux Foundation', type: 'course', level: 'advanced', duration: '8 weeks', skills: ['Kubernetes', 'Orchestration', 'Microservices'], url: 'https://training.linuxfoundation.org/', forSkill: 'Kubernetes' },
   ],
   'Machine Learning': [
     { id: 'ml1', title: 'Machine Learning Specialization', provider: 'Coursera', type: 'course', level: 'intermediate', duration: '3 months', skills: ['Machine Learning', 'Supervised Learning', 'Python'], url: 'https://www.coursera.org/specializations/machine-learning-introduction', forSkill: 'Machine Learning' },
@@ -49,14 +37,11 @@ const RESOURCE_LIBRARY: Record<string, Resource[]> = {
   'Deep Learning': [
     { id: 'dl1', title: 'Deep Learning Specialization', provider: 'Coursera', type: 'course', level: 'advanced', duration: '5 months', skills: ['Deep Learning', 'Neural Networks', 'TensorFlow'], url: 'https://www.coursera.org/specializations/deep-learning', forSkill: 'Deep Learning' },
   ],
-  'Scala': [
-    { id: 'scala1', title: 'Functional Programming in Scala', provider: 'Coursera', type: 'course', level: 'intermediate', duration: '7 weeks', skills: ['Scala', 'Functional Programming', 'Spark'], url: 'https://www.coursera.org/specializations/scala', forSkill: 'Scala' },
+  'Azure': [
+    { id: 'az1', title: 'Azure Fundamentals AZ-900', provider: 'Microsoft Learn', type: 'course', level: 'beginner', duration: 'Self-paced', skills: ['Azure', 'Cloud Computing', 'DevOps'], url: 'https://learn.microsoft.com/en-us/azure/', forSkill: 'Azure' },
   ],
-  'Docker': [
-    { id: 'dock1', title: 'Docker Mastery', provider: 'Udemy', type: 'course', level: 'intermediate', duration: '6 weeks', skills: ['Docker', 'Containers', 'DevOps'], url: 'https://www.udemy.com/course/docker-mastery/', forSkill: 'Docker' },
-  ],
-  'Kubernetes': [
-    { id: 'k8s1', title: 'Kubernetes for Developers', provider: 'Linux Foundation', type: 'course', level: 'advanced', duration: '8 weeks', skills: ['Kubernetes', 'Orchestration', 'Microservices'], url: 'https://training.linuxfoundation.org/', forSkill: 'Kubernetes' },
+  'Tableau': [
+    { id: 'tab1', title: 'Tableau for Data Scientists', provider: 'Tableau', type: 'course', level: 'beginner', duration: 'Self-paced', skills: ['Tableau', 'Data Visualization', 'Dashboards'], url: 'https://www.tableau.com/learn/training', forSkill: 'Tableau' },
   ],
 }
 
@@ -81,50 +66,50 @@ const CheckIcon = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24"
 
 function TypeIcon({ type }: { type: Resource['type'] }) {
   const cls = "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-  if (type === 'book') return <div className={`${cls} bg-indigo-100 text-indigo-600`}><BookIcon /></div>
-  return <div className={`${cls} bg-blue-100 text-blue-600`}><CourseIcon /></div>
+  if (type === 'book') return <div className={`${cls} bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400`}><BookIcon /></div>
+  return <div className={`${cls} bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400`}><CourseIcon /></div>
 }
 
 function levelBadge(level: Resource['level']) {
-  if (level === 'beginner') return 'bg-green-100 text-green-700'
-  if (level === 'intermediate') return 'bg-purple-100 text-purple-700'
-  return 'bg-orange-100 text-orange-700'
+  if (level === 'beginner') return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+  if (level === 'intermediate') return 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400'
+  return 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'
 }
 
 function ResourceCard({ resource, completed, onComplete }: {
   resource: Resource; completed: boolean; onComplete: (id: string) => void
 }) {
   return (
-    <div className={`bg-white rounded-2xl border p-6 hover:shadow-md transition-shadow ${completed ? 'border-green-200' : 'border-gray-200'}`}>
+    <div className={`bg-white dark:bg-gray-800 rounded-2xl border p-6 hover:shadow-md transition-shadow ${completed ? 'border-green-200 dark:border-green-800' : 'border-gray-200 dark:border-gray-700'}`}>
       <div className="flex items-start gap-4 mb-4">
         <TypeIcon type={resource.type} />
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-gray-900 text-base leading-snug">{resource.title}</h3>
-          <p className="text-sm text-gray-500 mt-0.5">{resource.provider}</p>
+          <h3 className="font-bold text-gray-900 dark:text-white text-base leading-snug">{resource.title}</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{resource.provider}</p>
         </div>
         {completed && (
-          <span className="flex items-center gap-1 text-xs text-green-600 font-semibold bg-green-100 px-2 py-1 rounded-full flex-shrink-0">
+          <span className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 font-semibold bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full flex-shrink-0">
             <CheckIcon /> Done
           </span>
         )}
       </div>
       <div className="flex items-center gap-3 mb-4">
         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${levelBadge(resource.level)}`}>{resource.level}</span>
-        <span className="flex items-center gap-1 text-xs text-gray-500"><ClockIcon /> {resource.duration}</span>
+        <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400"><ClockIcon /> {resource.duration}</span>
       </div>
       <div className="flex flex-wrap gap-1.5 mb-5">
         {resource.skills.map(s => (
-          <span key={s} className="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600 text-xs font-medium">{s}</span>
+          <span key={s} className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium">{s}</span>
         ))}
       </div>
       <div className="flex gap-2">
         <a href={resource.url} target="_blank" rel="noopener noreferrer"
-          className="flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-700 transition-colors">
+          className="flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-gray-900 dark:bg-gray-700 text-white text-sm font-bold hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
           Start Learning
         </a>
         {!completed && (
           <button onClick={() => onComplete(resource.id)}
-            className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap">
+            className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors whitespace-nowrap">
             Mark Complete
           </button>
         )}
@@ -143,11 +128,6 @@ export default function LearningPaths() {
   const [tab, setTab] = useState<Tab>('recommended')
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const saved = localStorage.getItem('lp_completed')
-    if (saved) setCompletedIds(new Set(JSON.parse(saved)))
-  }, [])
 
   useEffect(() => {
     if (!user?.email) return
@@ -185,68 +165,55 @@ export default function LearningPaths() {
   }, [tab, recommendedResources, allResources, completedResources])
 
   const handleComplete = (id: string) => {
-    setCompletedIds(prev => {
-      const next = new Set(prev)
-      next.add(id)
-      localStorage.setItem('lp_completed', JSON.stringify([...next]))
-      return next
-    })
+    setCompletedIds(prev => { const next = new Set(prev); next.add(id); return next })
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
       <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-6xl mx-auto px-6 py-8 md:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Learning Paths</h1>
-          <p className="text-gray-500 mt-1">Personalized resources to develop skills and reach your career goals</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Learning Paths</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Personalized resources to develop skills and reach your career goals</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
-          <label className="block text-sm font-semibold text-gray-700 mb-3">Learning Path For</label>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 mb-6">
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Learning Path For</label>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
               <div className="w-3 h-3 rounded-full bg-indigo-600 ring-2 ring-indigo-200"></div>
             </div>
             <select value={selectedId ?? ''} onChange={e => { setSelectedId(Number(e.target.value)); setTab('recommended') }}
-              className="flex-1 max-w-sm px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 focus:ring-2 focus:ring-indigo-500 bg-white">
+              className="flex-1 max-w-sm px-4 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-800 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500">
               {jobs.map(j => <option key={j.id} value={j.id}>{j.title} at {j.company}</option>)}
             </select>
           </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
-            <p className="text-sm text-gray-500 font-medium mb-3">Recommended</p>
-            <p className="text-3xl font-bold text-gray-900">{allResources.length}</p>
-            <p className="text-xs text-gray-400 mt-1">Resources for you</p>
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
-            <p className="text-sm text-gray-500 font-medium mb-3">In Progress</p>
-            <p className="text-3xl font-bold text-indigo-600">{allResources.filter(r => !completedIds.has(r.id)).length}</p>
-            <p className="text-xs text-gray-400 mt-1">Currently learning</p>
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
-            <p className="text-sm text-gray-500 font-medium mb-3">Completed</p>
-            <p className="text-3xl font-bold text-green-600">{completedIds.size}</p>
-            <p className="text-xs text-gray-400 mt-1">Resources finished</p>
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
-            <p className="text-sm text-gray-500 font-medium mb-3">Priority Skills</p>
-            <p className="text-3xl font-bold text-gray-900">{missingSkills.length}</p>
-            <p className="text-xs text-gray-400 mt-1">High priority</p>
-          </div>
+          {[
+            { label: 'Recommended', value: allResources.length, sub: 'Resources for you', color: 'text-gray-900 dark:text-white' },
+            { label: 'In Progress', value: allResources.filter(r => !completedIds.has(r.id)).length, sub: 'Currently learning', color: 'text-indigo-600 dark:text-indigo-400' },
+            { label: 'Completed', value: completedIds.size, sub: 'Resources finished', color: 'text-green-600 dark:text-green-400' },
+            { label: 'Priority Skills', value: missingSkills.length, sub: 'High priority', color: 'text-gray-900 dark:text-white' },
+          ].map(({ label, value, sub, color }) => (
+            <div key={label} className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5">
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-3">{label}</p>
+              <p className={`text-3xl font-bold ${color}`}>{value}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{sub}</p>
+            </div>
+          ))}
         </div>
 
         {missingSkills.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-base font-bold text-gray-900 mb-1">Skills to Focus On</h2>
-            <p className="text-sm text-gray-500 mb-4">Based on your gap analysis, these are the high-priority skills to develop:</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 mb-6">
+            <h2 className="text-base font-bold text-gray-900 dark:text-white mb-1">Skills to Focus On</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Based on your gap analysis, these are the high-priority skills to develop:</p>
             <div className="flex flex-wrap gap-2">
               {missingSkills.map(skill => (
                 <span key={skill} className="px-3 py-1.5 rounded-lg bg-red-500 text-white text-sm font-semibold">{skill}</span>
@@ -255,17 +222,21 @@ export default function LearningPaths() {
           </div>
         )}
 
-        {missingSkills.length === 0 && (
-          <div className="bg-white rounded-2xl border border-green-200 p-6 mb-6 text-center">
-            <p className="text-green-600 font-bold text-lg">You have all required skills for this role!</p>
-            <p className="text-sm text-gray-400 mt-1">Try selecting a different role to find learning opportunities.</p>
+        {missingSkills.length === 0 && job && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-green-200 dark:border-green-800 p-6 mb-6 text-center">
+            <p className="text-green-600 dark:text-green-400 font-bold text-lg">You have all required skills for this role!</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Try selecting a different role to find learning opportunities.</p>
           </div>
         )}
 
-        <div className="flex gap-1 mb-6 border-b border-gray-200">
+        <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700">
           {(['recommended', 'all', 'completed'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)}
-              className={`px-5 py-3 text-sm font-semibold transition-colors border-b-2 -mb-px ${tab === t ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>
+              className={`px-5 py-3 text-sm font-semibold transition-colors border-b-2 -mb-px ${
+                tab === t
+                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
+                  : 'border-transparent text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+              }`}>
               {t === 'recommended' ? 'Recommended' : t === 'all' ? 'All Resources' : 'Completed'}
             </button>
           ))}
@@ -274,10 +245,10 @@ export default function LearningPaths() {
         {displayedResources.length > 0 ? (
           <>
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 {tab === 'recommended' ? 'Recommended for You' : tab === 'completed' ? 'Completed Resources' : 'All Resources'}
               </h2>
-              <span className="text-sm text-gray-400">{displayedResources.length} resources</span>
+              <span className="text-sm text-gray-400 dark:text-gray-500">{displayedResources.length} resources</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {displayedResources.map(r => (
@@ -286,10 +257,10 @@ export default function LearningPaths() {
             </div>
           </>
         ) : (
-          <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-12 text-center">
             {tab === 'completed'
-              ? <><p className="text-gray-500 font-medium">No completed resources yet.</p><p className="text-sm text-gray-400 mt-1">Click "Mark Complete" on any resource to track your progress.</p></>
-              : <><p className="text-gray-500 font-medium">No resources found for missing skills.</p><p className="text-sm text-gray-400 mt-1">You may already have all required skills for this role!</p></>
+              ? <><p className="text-gray-500 dark:text-gray-400 font-medium">No completed resources yet.</p><p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Click "Mark Complete" on any resource to track your progress.</p></>
+              : <><p className="text-gray-500 dark:text-gray-400 font-medium">No resources found for missing skills.</p><p className="text-sm text-gray-400 dark:text-gray-500 mt-1">You may already have all required skills for this role!</p></>
             }
           </div>
         )}
