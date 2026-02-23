@@ -85,3 +85,40 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
         email=email_lower,
         name=user.name or email_lower.split("@")[0],
     )
+
+@router.post("/auth/change-password")
+async def change_password(request: dict, db: AsyncSession = Depends(get_db)):
+    from sqlalchemy import select
+    email = request.get("email")
+    old_password = request.get("old_password")
+    new_password = request.get("new_password")
+    if not email or not old_password or not new_password:
+        raise HTTPException(status_code=400, detail="Email, old password, and new password are required")
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+    r = await db.execute(select(PathfinderUser).where(PathfinderUser.email == email))
+    user = r.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if not bcrypt.checkpw(old_password.encode(), user.password_hash.encode()):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    user.password_hash = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    await db.commit()
+    return {"message": "Password changed successfully"}
+
+@router.post("/auth/reset-password")
+async def reset_password(request: dict, db: AsyncSession = Depends(get_db)):
+    from sqlalchemy import select
+    email = request.get("email")
+    new_password = request.get("new_password")
+    if not email or not new_password:
+        raise HTTPException(status_code=400, detail="Email and new password are required")
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    r = await db.execute(select(PathfinderUser).where(PathfinderUser.email == email))
+    user = r.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="No account found with this email")
+    user.password_hash = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    await db.commit()
+    return {"message": "Password reset successfully"}

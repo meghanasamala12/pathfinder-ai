@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { useState } from 'react'
+import axios from 'axios'
+import { API_BASE } from '../config'
 import { Brain, Moon, Sun, Settings } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -44,10 +45,119 @@ const navItems = [
   { to: '/alumni', label: 'Alumni Network', icon: UserGroupIcon },
 ]
 
-function SettingsMenu({ theme, toggleTheme, onLogout }: { theme: string; toggleTheme: () => void; onLogout: () => void }) {
+function ChangePasswordModal({ email, onClose }: { email: string; onClose: () => void }) {
+  const [oldPwd, setOldPwd] = useState('')
+  const [newPwd, setNewPwd] = useState('')
+  const [confirmPwd, setConfirmPwd] = useState('')
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async () => {
+    if (newPwd !== confirmPwd) { setError('New passwords do not match'); return }
+    if (newPwd.length < 6) { setError('Password must be at least 6 characters'); return }
+    setLoading(true); setError('')
+    try {
+      await axios.post(`${API_BASE}/auth/change-password`, { email, old_password: oldPwd, new_password: newPwd })
+      setSuccess(true)
+      setTimeout(onClose, 1500)
+    } catch (e: unknown) {
+      const detail = axios.isAxiosError(e) ? e.response?.data?.detail : null
+      setError(detail || 'Failed to change password')
+    } finally { setLoading(false) }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 w-full max-w-sm mx-4 shadow-xl">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Change Password</h2>
+        {success ? (
+          <p className="text-green-600 font-medium text-center py-4">Password changed successfully!</p>
+        ) : (
+          <div className="space-y-3">
+            <input type="password" placeholder="Current password" value={oldPwd} onChange={e => setOldPwd(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500" />
+            <input type="password" placeholder="New password" value={newPwd} onChange={e => setNewPwd(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500" />
+            <input type="password" placeholder="Confirm new password" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500" />
+            {error && <p className="text-red-500 text-xs">{error}</p>}
+            <div className="flex gap-2 pt-1">
+              <button onClick={onClose} className="flex-1 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800">Cancel</button>
+              <button onClick={handleSubmit} disabled={loading}
+                className="flex-1 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-60">
+                {loading ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ResetPasswordModal({ onClose }: { onClose: () => void }) {
+  const [email, setEmail] = useState('')
+  const [newPwd, setNewPwd] = useState('')
+  const [confirmPwd, setConfirmPwd] = useState('')
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async () => {
+    if (!email.trim()) { setError('Please enter your email'); return }
+    if (newPwd !== confirmPwd) { setError('Passwords do not match'); return }
+    if (newPwd.length < 6) { setError('Password must be at least 6 characters'); return }
+    setLoading(true); setError('')
+    try {
+      await axios.post(`${API_BASE}/auth/reset-password`, { email: email.trim().toLowerCase(), new_password: newPwd })
+      setSuccess(true)
+      setTimeout(onClose, 1500)
+    } catch (e: unknown) {
+      const detail = axios.isAxiosError(e) ? e.response?.data?.detail : null
+      setError(detail || 'Failed to reset password. Check your email is correct.')
+    } finally { setLoading(false) }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 w-full max-w-sm mx-4 shadow-xl">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Reset Password</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Enter your email and a new password to reset your account.</p>
+        {success ? (
+          <p className="text-green-600 dark:text-green-400 font-medium text-center py-4">Password reset successfully!</p>
+        ) : (
+          <div className="space-y-3">
+            <input type="email" placeholder="Your email address" value={email} onChange={e => setEmail(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-purple-500" />
+            <input type="password" placeholder="New password" value={newPwd} onChange={e => setNewPwd(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-purple-500" />
+            <input type="password" placeholder="Confirm new password" value={confirmPwd} onChange={e => setConfirmPwd(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-purple-500" />
+            {error && <p className="text-red-500 dark:text-red-400 text-xs">{error}</p>}
+            <div className="flex gap-2 pt-1">
+              <button onClick={onClose} className="flex-1 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800">Cancel</button>
+              <button onClick={handleSubmit} disabled={loading}
+                className="flex-1 px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 disabled:opacity-60">
+                {loading ? 'Resetting...' : 'Reset'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function SettingsMenu({ theme, toggleTheme, onLogout, email }: { theme: string; toggleTheme: () => void; onLogout: () => void; email: string }) {
   const [open, setOpen] = useState(false)
+  const [showChangePwd, setShowChangePwd] = useState(false)
+  const [showResetPwd, setShowResetPwd] = useState(false)
+
   return (
     <div className="relative">
+      {showChangePwd && <ChangePasswordModal email={email} onClose={() => setShowChangePwd(false)} />}
+      {showResetPwd && <ResetPasswordModal onClose={() => setShowResetPwd(false)} />}
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
@@ -55,23 +165,30 @@ function SettingsMenu({ theme, toggleTheme, onLogout }: { theme: string; toggleT
       >
         <Settings className="w-5 h-5 flex-shrink-0" />
         Settings
-        <svg className={`w-4 h-4 ml-auto transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+        <svg className={`w-4 h-4 ml-auto transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
       {open && (
         <div className="mt-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden shadow-lg">
-          <button
-            type="button"
-            onClick={() => { toggleTheme(); setOpen(false) }}
-            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
-          >
+          {/* Light/Dark Mode */}
+          <button type="button" onClick={() => { toggleTheme(); setOpen(false) }}
+            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors">
             {theme === 'dark' ? <Sun className="w-4 h-4 flex-shrink-0" /> : <Moon className="w-4 h-4 flex-shrink-0" />}
             {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
           </button>
-          <button
-            type="button"
-            onClick={onLogout}
-            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-t border-gray-100 dark:border-gray-700"
-          >
+          {/* Change Password */}
+          <button type="button" onClick={() => { setShowChangePwd(true); setOpen(false) }}
+            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors border-t border-gray-100 dark:border-gray-700">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+            Change Password
+          </button>
+
+          {/* Logout */}
+          <button type="button" onClick={onLogout}
+            className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-t border-gray-100 dark:border-gray-700">
             <LogoutIcon className="w-4 h-4 flex-shrink-0" />
             Logout
           </button>
@@ -81,9 +198,8 @@ function SettingsMenu({ theme, toggleTheme, onLogout }: { theme: string; toggleT
   )
 }
 
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
 
@@ -117,7 +233,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           ))}
         </nav>
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <SettingsMenu theme={theme} toggleTheme={toggleTheme} onLogout={() => { logout(); navigate('/login', { replace: true }) }} />
+          <SettingsMenu theme={theme} toggleTheme={toggleTheme} email={user?.email || ''} onLogout={() => { logout(); navigate('/login', { replace: true }) }} />
         </div>
       </aside>
       <main className="flex-1 overflow-auto">{children}</main>
