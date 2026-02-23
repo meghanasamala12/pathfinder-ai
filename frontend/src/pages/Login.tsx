@@ -172,12 +172,7 @@ export default function Login() {
               Don&apos;t have an account?{' '}
               <Link to="/signup" className="text-purple-600 font-medium hover:text-purple-700">Sign up</Link>
             </p>
-            <p className="text-center mt-4">
-              <button type="button" onClick={handleContinueWithoutAccount}
-                className="text-sm text-gray-500 hover:text-purple-600 underline">
-                Continue to Dashboard (no account)
-              </button>
-            </p>
+
           </div>
         </div>
       </div>
