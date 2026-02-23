@@ -64,19 +64,19 @@ function AlumniCard({ alumni, index, university }: { alumni: Alumni; index: numb
   const linkedInBySkillUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(university + ' ' + (alumni.expertise[0] || '') + ' ' + alumni.company)}`
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-start gap-3">
           <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center flex-shrink-0`}>
             <span className="text-white font-bold text-lg">{alumni.company[0]}</span>
           </div>
           <div>
-            <p className="font-bold text-gray-900">{alumni.role}</p>
-            <p className="text-sm font-medium text-gray-600">{alumni.company}</p>
+            <p className="font-bold text-gray-900 dark:text-white">{alumni.role}</p>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{alumni.company}</p>
             <p className="text-xs text-gray-400">{alumni.location}</p>
           </div>
         </div>
-        <span className="text-xs px-2 py-1 rounded-full bg-indigo-50 text-indigo-600 font-medium">AI Suggested</span>
+        <span className="text-xs px-2 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium">AI Suggested</span>
       </div>
 
       <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
@@ -89,20 +89,20 @@ function AlumniCard({ alumni, index, university }: { alumni: Alumni; index: numb
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Key Skills</p>
         <div className="flex flex-wrap gap-1.5">
           {(alumni.expertise || []).map(skill => (
-            <span key={skill} className="px-2.5 py-1 rounded-full text-xs text-blue-600 bg-blue-50 font-medium">{skill}</span>
+            <span key={skill} className="px-2.5 py-1 rounded-full text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 font-medium">{skill}</span>
           ))}
         </div>
       </div>
 
-      <div className="rounded-xl bg-indigo-50 border border-indigo-100 p-3">
-        <p className="text-xs font-semibold text-indigo-700 mb-2">🔍 Find real alumni like this on LinkedIn:</p>
+      <div className="rounded-xl bg-indigo-50 dark:bg-gray-800 border border-indigo-100 dark:border-gray-700 p-3">
+        <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-400 mb-2">🔍 Find real alumni like this on LinkedIn:</p>
         <div className="flex flex-col gap-2">
           <a href={linkedInByRoleUrl} target="_blank" rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition-colors">
             <LinkedInIcon /> {uniShort} · {alumni.role} · {alumni.company}
           </a>
           <a href={linkedInBySkillUrl} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-300 text-indigo-700 text-xs font-medium hover:bg-indigo-100 transition-colors bg-white">
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors bg-white dark:bg-gray-800">
             <LinkedInIcon /> {uniShort} · {alumni.expertise[0]} · {alumni.company}
           </a>
         </div>
@@ -137,13 +137,13 @@ export default function AlumniNetwork() {
   // If LinkedIn URL not provided, show prompt
   if (profileLoaded && !linkedInUrl) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
         <div className="max-w-6xl mx-auto px-6 py-8 md:px-8">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Alumni Network</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Alumni Network</h1>
             <p className="text-gray-500 mt-1">Connect with alumni from your university in your target companies and roles</p>
           </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center max-w-lg mx-auto mt-16">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-12 text-center max-w-lg mx-auto mt-16">
             <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-5">
               <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
@@ -188,10 +188,10 @@ export default function AlumniNetwork() {
   const linkedInAlumniUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent((uniKeyword || 'university') + ' alumni')}`
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-6xl mx-auto px-6 py-8 md:px-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Alumni Network</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Alumni Network</h1>
           <p className="text-gray-500 mt-1">Connect with alumni from your university in your target companies and roles</p>
         </div>
 
@@ -220,7 +220,7 @@ export default function AlumniNetwork() {
 
         {/* Empty state */}
         {!loading && alumni.length === 0 && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center mb-6">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-12 text-center mb-6">
             <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mx-auto mb-4">
               <SparkleIcon />
             </div>
@@ -240,36 +240,34 @@ export default function AlumniNetwork() {
 
         {/* Loading */}
         {loading && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center mb-6">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-12 text-center mb-6">
             <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-500">Finding alumni from your university...</p>
+            <p className="text-gray-500 dark:text-gray-400">Finding alumni from your university...</p>
           </div>
         )}
 
         {/* Search + Filters + Grid */}
         {alumni.length > 0 && !loading && (
           <>
-            <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 mb-6">
               <div className="relative mb-5">
                 <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none"><SearchIcon /></div>
                 <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                   placeholder="Search by name, company, or role..."
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                  className="w-full dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
               </div>
-              <div className="flex items-center gap-2 mb-3"><FilterIcon /><span className="font-semibold text-gray-900">Filters</span></div>
+              <div className="flex items-center gap-2 mb-3"><FilterIcon /><span className="font-semibold text-gray-900 dark:text-white">Filters</span></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-gray-600 mb-1">Company</label>
-                  <select value={companyFilter} onChange={e => setCompanyFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
+                  <select value={companyFilter} onChange={e => setCompanyFilter(e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500">
                     <option value="">All Companies</option>
                     {companies.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm text-gray-600 mb-1">Expertise</label>
-                  <select value={expertiseFilter} onChange={e => setExpertiseFilter(e.target.value)}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
+                  <select value={expertiseFilter} onChange={e => setExpertiseFilter(e.target.value)} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500">
                     <option value="">All Expertise</option>
                     {expertiseList.map(e => <option key={e} value={e}>{e}</option>)}
                   </select>
@@ -281,8 +279,8 @@ export default function AlumniNetwork() {
               {filtered.map((a, i) => <AlumniCard key={a.name + i} alumni={a} index={i} university={uniKeyword} />)}
             </div>
             {filtered.length === 0 && (
-              <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-                <p className="text-gray-500">No alumni found matching your search. Try different filters.</p>
+              <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+                <p className="text-gray-500 dark:text-gray-400">No alumni found matching your search. Try different filters.</p>
               </div>
             )}
           </>
