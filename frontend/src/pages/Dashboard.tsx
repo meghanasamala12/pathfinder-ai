@@ -285,7 +285,7 @@ export default function Dashboard() {
       if (extracted.length > 0) { addProjectsUnique(extracted.map((p) => ({ title: p.title, description: p.description, technologies: p.technologies || [], date: p.date }))) }
       if (user?.email) {
         try {
-          await axios.post(`${API_BASE}/career/save-profile`, { email: user.email, name: profile.name || undefined, academic_title: profile.academic_title || undefined, technical_skills: profile.technical_skills || [], soft_skills: profile.soft_skills || [], courses: profile.courses || [], profile_projects: extracted, career_interests: careerInterests })
+          await axios.post(`${API_BASE}/career/save-profile`, { email: user.email, name: profile.name || undefined, academic_title: profile.academic_title || undefined, technical_skills: profile.technical_skills || [], soft_skills: profile.soft_skills || [], courses: profile.courses || [], profile_projects: extracted.length > 0 ? extracted : profileProjects, career_interests: careerInterests })
           bumpProfileVersion()
         } catch {}
       }
@@ -372,3 +372,4 @@ export default function Dashboard() {
     </div>
   )
 }
+// cache bust Sun Mar 15 02:21:04 AM UTC 2026

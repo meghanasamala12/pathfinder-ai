@@ -151,6 +151,7 @@ export default function Profile() {
   const { user } = useAuth()
   const hasAnyDocuments = resumeFiles.length > 0 || courseworkFiles.length > 0 || projectFiles.length > 0
   const [profileLoaded, setProfileLoaded] = useState(false)
+  const skipNextInterestsSave = useRef(true)
 
   useEffect(() => {
     if (!user?.email) return
@@ -166,12 +167,14 @@ export default function Profile() {
         if (data.courses?.length) setCourses(data.courses)
         if (data.projects?.length) setProfileProjects(data.projects)
         if (data.career_interests?.length) setCareerInterests(data.career_interests)
+        skipNextInterestsSave.current = true
         setProfileLoaded(true)
       }).catch(() => { setProfileLoaded(true) })
   }, [user?.email])
 
   useEffect(() => {
     if (!user?.email || !profileLoaded) return
+    if (skipNextInterestsSave.current) { skipNextInterestsSave.current = false; return }
     const t = setTimeout(() => {
       axios.put(`${API_BASE}/career/profile/career-interests`, { email: user.email, career_interests: careerInterests }).catch(() => {})
     }, 500)
@@ -249,6 +252,7 @@ export default function Profile() {
           email: user.email, name: profile.name || undefined, academic_title: profile.academic_title || undefined,
           technical_skills: profile.technical_skills || [], soft_skills: profile.soft_skills || [],
           courses: finalCourses, career_interests: careerInterests,
+          profile_projects: extracted.length > 0 ? extracted.map((p) => ({ title: p.title, description: p.description, technologies: p.technologies || [], date: p.date })) : profileProjects,
         }).catch(() => {})
         bumpProfileVersion()
       }
